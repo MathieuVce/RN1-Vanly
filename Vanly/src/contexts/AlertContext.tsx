@@ -1,22 +1,24 @@
-import React, { createContext, useState, useEffect, useReducer } from "react";
+import React, {
+  createContext, useState, useEffect, useReducer,
+} from 'react';
 
-import { showMessage } from "react-native-flash-message";
+import { showMessage } from 'react-native-flash-message';
 
 export const AlertContext = createContext<{
     Alerts: TAlerts;
 }>({
-    Alerts: {
-        danger: () => {},
-        send: () => {},
-        success: () => {},
-        warning: () => {},
-    },
+  Alerts: {
+    danger: () => {},
+    send: () => {},
+    success: () => {},
+    warning: () => {},
+  },
 });
 
 export interface IAlert {
     title: string;
     message: string;
-    type: "danger" | "default" | "success" | "warning";
+    type: 'danger' | 'default' | 'success' | 'warning';
     duration?: number;
 }
 
@@ -36,76 +38,75 @@ type TAlerts = {
 };
 
 const reducer: (state: IAlert[], value: {
-    action: "danger" | "default" | "success" | "warning" | "shift";
+    action: 'danger' | 'default' | 'success' | 'warning' | 'shift';
     alert?: TAlertPayload;
     alerts?: TAlertPayload[];
 }) => IAlert[] = (state, { action, alert, alerts }) => {
-    if (action === "shift") {
-        state.shift();
-        return state;
-    } else if (alert) {
-        return [
-            ...state,
-            {
-                ...alert,
-                type: action
-            }
-        ];
-    } else if (alerts) {
-        return [
-            ...state,
-            ...(alerts.map(alertValue => ({
-                ...alertValue,
-                type: action
-            })))
-        ];
-    } else {
-        return state;
-    }
+  if (action === 'shift') {
+    state.shift();
+    return state;
+  } if (alert) {
+    return [
+      ...state,
+      {
+        ...alert,
+        type: action,
+      },
+    ];
+  } if (alerts) {
+    return [
+      ...state,
+      ...(alerts.map((alertValue) => ({
+        ...alertValue,
+        type: action,
+      }))),
+    ];
+  }
+  return state;
 };
 
 export const AlertProvier: React.FC = ({ children }) => {
+  const [alerts, dispatchAlerts] = useReducer(reducer, []);
+  const [isDisplaying, setIsDisplaying] = useState(false);
 
-    const [alerts, dispatchAlerts] = useReducer(reducer, []);
-    const [isDisplaying, setIsDisplaying] = useState(false);
+  useEffect(() => {
+    if (alerts[0] && !isDisplaying) {
+      setIsDisplaying(true);
 
-    useEffect(() => {
-        if (alerts[0] && !isDisplaying) {
-            setIsDisplaying(true);
+      const alert = alerts[0];
 
-            const alert = alerts[0];
+      showMessage({
+        backgroundColor: alert.type === 'default' ? 'white' : undefined,
+        color: alert.type === 'default' ? '#333' : undefined,
 
-            showMessage({
-                backgroundColor: alert.type === "default" ? "white" : undefined,
-                color: alert.type === "default" ? "#333" : undefined,
+        message: alert.title,
+        description: alert.message,
+        type: alert.type,
+        icon: alert.type,
+        floating: true,
+        duration: alert.duration ? alert.duration : 6000,
+      });
 
-                message: alert.title,
-                description: alert.message,
-                type: alert.type,
-                icon: alert.type,
-                floating: true,
-                duration: alert.duration ? alert.duration : 6000
-            });
+      setTimeout(() => {
+        dispatchAlerts({ action: 'shift' });
+        setIsDisplaying(false);
+      }, 6000);
+    }
+  }, [alerts, isDisplaying]);
 
-            setTimeout(() => {
-                dispatchAlerts({ action: "shift" });
-                setIsDisplaying(false);
-            }, 6000);
-        }
-    }, [alerts, isDisplaying]);
+  const Alerts: TAlerts = {
+    danger: (alert) => dispatchAlerts({ action: 'danger', alert }),
+    send: (alert) => dispatchAlerts({ action: 'default', alert }),
+    success: (alert) => dispatchAlerts({ action: 'success', alert }),
+    warning: (alert) => dispatchAlerts({ action: 'warning', alert }),
+  };
 
-    const Alerts: TAlerts = {
-        danger: alert => dispatchAlerts({ action: "danger", alert }),
-        send: alert => dispatchAlerts({ action: "default", alert }),
-        success: alert => dispatchAlerts({ action: "success", alert }),
-        warning: alert => dispatchAlerts({ action: "warning", alert }),
-    };
-
-    return (
-        <AlertContext.Provider value={{
-            Alerts
-        }}>
-            {children}
-        </AlertContext.Provider>
-    );
+  return (
+    <AlertContext.Provider value={{
+      Alerts,
+    }}
+    >
+      {children}
+    </AlertContext.Provider>
+  );
 };

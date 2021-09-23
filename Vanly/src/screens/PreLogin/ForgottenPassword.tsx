@@ -1,21 +1,16 @@
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
 
-import React from "react";
-import { View, StyleSheet } from "react-native";
+import { AppModelNavProps } from '../../roots/AppModelNav';
 
-import { AppModelNavProps } from "../../roots/AppModelNav";
-
-type IForgottenPasswordProps = AppModelNavProps<"ForgottenPassword">;
-export const ForgottenPassword: React.FC<IForgottenPasswordProps> = ({ navigation }) => {
-
-    return (
-        <View style={styles.container}>
-        </View>
-    );
-};
+type IForgottenPasswordProps = AppModelNavProps<'ForgottenPassword'>;
+export const ForgottenPassword: React.FC<IForgottenPasswordProps> = ({ navigation }) => (
+  <View style={styles.container} />
+);
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: 'white'
-    },
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
 });

@@ -1,28 +1,25 @@
-
 import 'react-native-gesture-handler';
 import React, { useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import FlashMessage from "react-native-flash-message";
+import FlashMessage from 'react-native-flash-message';
 
-import  { AppModelNav } from './src/roots/AppModelNav'
-import { AlertProvier } from './src/contexts/AlertContext';
-import  {ClientContext, ClientProvider} from './src/contexts/ClientContext'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AppModelNav } from './src/roots/AppModelNav';
+import { AlertProvier } from './src/contexts/AlertContext';
+import { ClientContext, ClientProvider } from './src/contexts/ClientContext';
 
 export default function App() {
-  
-    return (
-        <SafeAreaProvider>
-            <AlertProvier>
-              <ClientProvider>
-                  <Appli/>
-                  <FlashMessage position="top" />
-              </ClientProvider>
-            </AlertProvier>
-        </SafeAreaProvider>
-    )
+  return (
+    <SafeAreaProvider>
+      <AlertProvier>
+        <ClientProvider>
+          <Appli />
+          <FlashMessage position="top" />
+        </ClientProvider>
+      </AlertProvier>
+    </SafeAreaProvider>
+  );
 }
-
 
 const Appli: React.FC = () => {
   const { client } = useContext(ClientContext);
@@ -31,8 +28,7 @@ const Appli: React.FC = () => {
     <NavigationContainer>
       {client
         ? <AppModelNav />
-        :  <AppModelNav />
-      }
+        : <AppModelNav />}
     </NavigationContainer>
-  )
+  );
 };
