@@ -1,2 +1,2 @@
-# RN1-EpiMtp
+# RN1-Vanly
 React Native 1 Epitech Module
