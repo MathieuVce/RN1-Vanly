@@ -4,9 +4,6 @@ import { View, StyleSheet } from 'react-native';
 import { AppModelNavProps } from '../../roots/AppModelNav';
 
 type IRegisterProps = AppModelNavProps<'Register'>;
-export const Register: React.FC<IRegisterProps> = ({ navigation }) => (
-  <View style={styles.container} />
-);
 
 const styles = StyleSheet.create({
   container: {
@@ -14,3 +11,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
 });
+
+export const Register: React.FC<IRegisterProps> = ({ }) => (
+  <View style={styles.container} />
+);
+

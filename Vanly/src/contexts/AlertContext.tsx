@@ -5,7 +5,7 @@ import React, {
 import { showMessage } from 'react-native-flash-message';
 
 export const AlertContext = createContext<{
-    Alerts: TAlerts;
+  Alerts: TAlerts;
 }>({
   Alerts: {
     danger: () => {},
@@ -16,31 +16,31 @@ export const AlertContext = createContext<{
 });
 
 export interface IAlert {
-    title: string;
-    message: string;
-    type: 'danger' | 'default' | 'success' | 'warning';
-    duration?: number;
+  title: string;
+  message: string;
+  type: 'danger' | 'default' | 'success' | 'warning';
+  duration?: number;
 }
 
 type TAlertPayload = {
-    title: string;
-    message: string;
-    duration?: number;
+  title: string;
+  message: string;
+  duration?: number;
 };
 
 type TAlertMethod = (value: TAlertPayload) => void;
 
 type TAlerts = {
-    danger: TAlertMethod;
-    send: TAlertMethod;
-    success: TAlertMethod;
-    warning: TAlertMethod;
+  danger: TAlertMethod;
+  send: TAlertMethod;
+  success: TAlertMethod;
+  warning: TAlertMethod;
 };
 
 const reducer: (state: IAlert[], value: {
-    action: 'danger' | 'default' | 'success' | 'warning' | 'shift';
-    alert?: TAlertPayload;
-    alerts?: TAlertPayload[];
+  action: 'danger' | 'default' | 'success' | 'warning' | 'shift';
+  alert?: TAlertPayload;
+  alerts?: TAlertPayload[];
 }) => IAlert[] = (state, { action, alert, alerts }) => {
   if (action === 'shift') {
     state.shift();

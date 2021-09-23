@@ -9,14 +9,14 @@ import { ForgottenPassword } from '../screens/PreLogin/ForgottenPassword';
 interface IAppModelNavProps {}
 
 type AppModelNavParamList = {
-    Login: undefined;
-    Register: undefined;
-    ForgottenPassword: undefined;
+  Login: undefined;
+  Register: undefined;
+  ForgottenPassword: undefined;
 };
 
 export type AppModelNavProps<T extends keyof AppModelNavParamList> = {
-    navigation: StackNavigationProp<AppModelNavParamList, T>;
-    route: RouteProp<AppModelNavParamList, T>;
+  navigation: StackNavigationProp<AppModelNavParamList, T>;
+  route: RouteProp<AppModelNavParamList, T>;
 };
 
 const RootStack = createStackNavigator<AppModelNavParamList>();

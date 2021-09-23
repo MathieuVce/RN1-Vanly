@@ -1,16 +1,9 @@
-import React, { useState } from 'react';
-import {
-  View, StyleSheet, Text, TextInput, SafeAreaView, ScrollView,
-} from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import React from 'react';
+import { StyleSheet, SafeAreaView } from 'react-native';
 
 import { AppModelNavProps } from '../../roots/AppModelNav';
 
 type ILoginProps = AppModelNavProps<'Login'>;
-export const Login: React.FC<ILoginProps> = ({ }) => (
-  <SafeAreaView style={styles.container}>
-  </SafeAreaView>
-);
 
 const styles = StyleSheet.create({
   container: {
@@ -18,3 +11,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
 });
+
+export const Login: React.FC<ILoginProps> = ({ }) => (
+    <SafeAreaView style={styles.container}>
+    </SafeAreaView>
+);
