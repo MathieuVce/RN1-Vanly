@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { AppModelNavConnectedProps } from '../roots/AppModelNavConnected';
 
@@ -11,13 +11,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 16 * 2,
   },
 });
 
 export const Map: React.FC<IMapProps> = ({ }) => {
   return (
     <View style={styles.container}>
-      <Text>cbon ?</Text>
     </View>
   );
 };
