@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { StyleSheet, SafeAreaView, Button, ActivityIndicator, View } from 'react-native';
+
 import { IAuth } from '../../@types/IClient';
 import { ClientContext } from '../../contexts/ClientContext';
 
@@ -19,7 +20,7 @@ export const Login: React.FC<ILoginProps> = ({ }) => {
 
 
   const [loading, setLoading] = useState(false);
-  const [values] = useState<IAuth>({ 'email': 'marc.frezal@epitech.eu', 'password': '' });
+  const [values] = useState<IAuth>({ 'email': 'mathieu.vacance@epitech.eu', 'password': 'Motdepasse1@' });
 
   const onCLick = async () => {
     setLoading(true);
