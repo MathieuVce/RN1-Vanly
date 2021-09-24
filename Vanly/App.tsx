@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import FlashMessage from 'react-native-flash-message';
-
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
 import { AppModelNav } from './src/roots/AppModelNav';
 import { AlertProvier } from './src/contexts/AlertContext';
+import { AppModelNavConnected } from './src/roots/AppModelNavConnected';
 import { ClientContext, ClientProvider } from './src/contexts/ClientContext';
 
 const Appli: React.FC = () => {
@@ -13,7 +14,7 @@ const Appli: React.FC = () => {
   return (
     <NavigationContainer>
       {client
-        ? <AppModelNav />
+        ? <AppModelNavConnected />
         : <AppModelNav />}
     </NavigationContainer>
   );

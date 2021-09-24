@@ -12,7 +12,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export const Register: React.FC<IRegisterProps> = ({ }) => (
-  <View style={styles.container} />
-);
+export const Register: React.FC<IRegisterProps> = ({ }) => {
+  return (
+    <View style={styles.container} />
+  );
+};
 

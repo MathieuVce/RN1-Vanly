@@ -1,5 +1,7 @@
-import React from 'react';
-import { StyleSheet, SafeAreaView } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { StyleSheet, SafeAreaView, Button, ActivityIndicator, View } from 'react-native';
+import { IAuth } from '../../@types/IClient';
+import { ClientContext } from '../../contexts/ClientContext';
 
 import { AppModelNavProps } from '../../roots/AppModelNav';
 
@@ -12,7 +14,29 @@ const styles = StyleSheet.create({
   },
 });
 
-export const Login: React.FC<ILoginProps> = ({ }) => (
+export const Login: React.FC<ILoginProps> = ({ }) => {
+  const { login } = useContext(ClientContext);
+
+
+  const [loading, setLoading] = useState(false);
+  const [values] = useState<IAuth>({ 'email': 'marc.frezal@epitech.eu', 'password': '' });
+
+  const onCLick = async () => {
+    setLoading(true);
+    login(values);
+    setLoading(false);
+
+  };
+
+  return (
     <SafeAreaView style={styles.container}>
+      <Button title='Login' onPress={onCLick}></Button>
+      {
+        loading ?
+          <ActivityIndicator size="large" color="#00ff00"/>
+          :
+          <View></View>
+      }
     </SafeAreaView>
-);
+  );
+};

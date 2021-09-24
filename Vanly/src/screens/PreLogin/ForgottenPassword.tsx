@@ -12,7 +12,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export const ForgottenPassword: React.FC<IForgottenPasswordProps> = ({ }) => (
-  <View style={styles.container} />
-);
+export const ForgottenPassword: React.FC<IForgottenPasswordProps> = ({ }) => {
+  return (
+    <View style={styles.container} />
+  );
+};
 
