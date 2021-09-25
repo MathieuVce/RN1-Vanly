@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 16 * 2,
   },
   map: {
     width: Dimensions.get('window').width,

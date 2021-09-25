@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { StyleSheet, SafeAreaView, Button, ActivityIndicator, View } from 'react-native';
+import { StyleSheet, SafeAreaView, Button, ActivityIndicator } from 'react-native';
+
 import { IAuth } from '../../@types/IClient';
 import { ClientContext } from '../../contexts/ClientContext';
 
@@ -11,6 +12,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
+    justifyContent: 'center',
   },
 });
 
@@ -19,23 +21,21 @@ export const Login: React.FC<ILoginProps> = ({ }) => {
 
 
   const [loading, setLoading] = useState(false);
-  const [values] = useState<IAuth>({ 'email': 'marc.frezal@epitech.eu', 'password': '' });
+  const [values] = useState<IAuth>({ 'email': 'mathieu.vacance@epitech.eu', 'password': 'Motdepasse1@' });
 
   const onCLick = async () => {
     setLoading(true);
-    login(values);
+    await login(values);
     setLoading(false);
-
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Button title='Login' onPress={onCLick}></Button>
       {
         loading ?
-          <ActivityIndicator size="large" color="#00ff00"/>
+        <ActivityIndicator size='large' color="black"/>
           :
-          <View></View>
+        <Button title='Login' onPress={onCLick}/>
       }
     </SafeAreaView>
   );
