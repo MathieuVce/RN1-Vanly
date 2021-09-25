@@ -5,6 +5,7 @@ export interface IClientContext {
   
   login: TLoginFC;
 }
+
 export type TLoginFC = (payload: IAuth) => Promise<any>;
 
 export const defaultClientValue: IClientContext = {
