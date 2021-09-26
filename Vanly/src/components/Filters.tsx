@@ -42,11 +42,12 @@ interface IItemProps {
   name: string;
   icon: { name: any, type: string };
   onPress: ((event: GestureResponderEvent) => void);
+  isSelected: boolean;
 }
 
-export const Item: React.FC<IItemProps> = ({ name, icon, onPress }) => {
+export const Item: React.FC<IItemProps> = ({ name, icon, onPress, isSelected }) => {
 
-  const [selected, setSelected] = useState(true);
+  const [selected, setSelected] = useState(isSelected);
 
   const activateFilter = (event: GestureResponderEvent) => {
     onPress(event);

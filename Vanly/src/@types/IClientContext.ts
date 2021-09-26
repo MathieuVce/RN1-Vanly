@@ -9,6 +9,7 @@ export interface IClientContext {
   register: TRegisterFC;
   resetpassword: TResetPasswordFC;
 }
+
 export type TLoginFC = (payload: IAuth) => Promise<any>;
 export type TRegisterFC = (payload: IAuth) => Promise<any>;
 export type TLogoutFC = () => Promise<any>;
