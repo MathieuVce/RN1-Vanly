@@ -28,7 +28,8 @@ export const ClientProvider: React.FC = ({ children }) => {
           setUser({ 'firstname': tmpuser.displayName, email: tmpuser.email });
           Alerts.success({
             title: 'Successful authentication',
-            message: `Welcome back ${tmpuser?.displayName} !`,
+            message: 'Welcome back !',
+            // message: `Welcome back ${tmpuser?.displayName} !`,
           });
         } else {
           Alerts.success({

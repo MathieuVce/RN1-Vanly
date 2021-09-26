@@ -20,13 +20,13 @@ export const Login: React.FC<ILoginProps> = ({ }) => {
   const { login } = useContext(ClientContext);
 
 
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [values] = useState<IAuth>({ 'email': 'mathieu.vacance@epitech.eu', 'password': 'Motdepasse1@' });
 
   const onCLick = async () => {
-    setLoading(true);
+    // setLoading(true);
     await login(values);
-    setLoading(false);
+    // setLoading(false);
   };
 
   return (
