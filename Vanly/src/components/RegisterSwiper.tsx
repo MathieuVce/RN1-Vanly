@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,7 +7,7 @@ import {
   TextInput,
   Keyboard,
 } from 'react-native';
-
+import { ClientContext } from '../contexts/ClientContext';
 import Swiper from 'react-native-swiper/src';
 
 interface IRegisterSwiperProps {}
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
 });
 
 export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
-  // const client = useContext(ClientContext);
+  const { register } = useContext(ClientContext);
   const [day, setDay] = useState(undefined);
   const [month, setMonth] = useState(undefined);
   const [year, setYear] = useState(undefined);
@@ -146,9 +146,12 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
     swiper.scrollBy(-1);
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     Keyboard.dismiss();
-
+    await register({
+      email: email.toLowerCase(),
+      password: day + month + year,
+    });
     alert('submit form');
   };
 

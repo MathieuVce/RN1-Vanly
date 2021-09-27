@@ -2,30 +2,39 @@ import React, { createContext, useContext, useState } from 'react';
 
 import firebase from '../database/firebase';
 import { IAuth, IClient, IReset } from '../@types/IClient';
-import { defaultClientValue, IClientContext, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC } from '../@types/IClientContext';
+import {
+  defaultClientValue,
+  IClientContext,
+  TGetUserFC,
+  TLoginFC,
+  TLogoutFC,
+  TRegisterFC,
+  TResetPasswordFC,
+} from '../@types/IClientContext';
 import { AlertContext } from './AlertContext';
 
 export const ClientContext = createContext<IClientContext>(defaultClientValue);
 
 export const ClientProvider: React.FC = ({ children }) => {
-  const [user, setUser] = useState<null | IClient >(null);
+  const [user, setUser] = useState<null | IClient>(null);
   const { Alerts } = useContext(AlertContext);
 
   const getUser: TGetUserFC = async () => {
     const tmpuser = firebase.auth().currentUser;
 
-    return tmpuser ? { displayName: tmpuser.displayName, email: tmpuser.email } : null;
+    return tmpuser
+      ? { displayName: tmpuser.displayName, email: tmpuser.email }
+      : null;
   };
 
   const login: TLoginFC = async payload => {
-    await firebase.auth()
+    await firebase
+      .auth()
       .signInWithEmailAndPassword(payload.email, payload.password)
       .then(async () => {
-
         const tmpuser = await getUser();
         if (tmpuser) {
-
-          setUser({ 'firstname': tmpuser.displayName, email: tmpuser.email });
+          setUser({ firstname: tmpuser.displayName, email: tmpuser.email });
           Alerts.success({
             title: 'Successful authentication',
             message: 'Welcome back !',
@@ -48,8 +57,19 @@ export const ClientProvider: React.FC = ({ children }) => {
   };
 
   const register: TRegisterFC = async (payload: IAuth) => {
-    await firebase.auth()
+    await firebase
+      .auth()
       .createUserWithEmailAndPassword(payload.email, payload.password)
+      .then(async () => {
+        const tmpuser = await getUser();
+        if (tmpuser) {
+          setUser({ firstname: tmpuser.displayName, email: tmpuser.email });
+          Alerts.success({
+            title: 'Successful Registration',
+            message: 'Welcome back !',
+          });
+        }
+      })
       .catch(error => {
         console.log(error);
         Alerts.warning({
@@ -60,7 +80,8 @@ export const ClientProvider: React.FC = ({ children }) => {
   };
 
   const logout: TLogoutFC = async () => {
-    await firebase.auth()
+    await firebase
+      .auth()
       .signOut()
       .then(() => {
         setUser(null);
@@ -78,7 +99,8 @@ export const ClientProvider: React.FC = ({ children }) => {
   };
 
   const resetpassword: TResetPasswordFC = async (payload: IReset) => {
-    await firebase.auth()
+    await firebase
+      .auth()
       .sendPasswordResetEmail(payload.email)
       .then(() => {
         Alerts.success({
@@ -94,15 +116,17 @@ export const ClientProvider: React.FC = ({ children }) => {
       });
   };
 
-
-
   return (
-    <ClientContext.Provider value={{
-      client: user,
-      
-      login, register, logout, resetpassword,
-      getUser,
-    }}
+    <ClientContext.Provider
+      value={{
+        client: user,
+
+        login,
+        register,
+        logout,
+        resetpassword,
+        getUser,
+      }}
     >
       {children}
     </ClientContext.Provider>
