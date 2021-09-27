@@ -115,17 +115,28 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
   const [step, setStep] = useState(0);
   const [swiper, setSwiper] = useState();
 
+  const emailRegex =
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
   const onPressNext = () => {
     Keyboard.dismiss();
+    setStep(step + 1);
+    swiper.scrollBy(1);
+  };
 
+  const disableButton = () => {
     if (step === 0 && name) {
-      setStep(1);
-      swiper.scrollBy(1);
+      return false;
     } else if (step === 1 && day && month && year) {
-      setStep(2);
-      swiper.scrollBy(1);
-    } else if (step === 2 && email) {
+      return false;
+    } else if (
+      step === 2 &&
+      email &&
+      emailRegex.test(String(email).toLowerCase())
+    ) {
+      return false;
     }
+    return true;
   };
 
   const onPressPrevious = () => {
@@ -137,12 +148,8 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
 
   const onSubmit = () => {
     Keyboard.dismiss();
-    if (
-      email ===
-      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    )
-      alert('wrong email format');
-    if (email && name && day && month && year) alert('submit form');
+
+    alert('submit form');
   };
 
   const renderSlide1 = () => {
@@ -156,7 +163,6 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
             placeholder="Je m'appelle..."
             onChangeText={setName}
             style={styles.input}
-            // autoFocus={focus1()}
             keyboardType="default"
           />
         </View>
@@ -175,7 +181,6 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
             onChangeText={setDay}
             keyboardType="number-pad"
             maxLength={2}
-            // autoFocus={focus2()}
           />
         </View>
         <View style={styles.picker_container2}>
@@ -224,7 +229,6 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
             onChangeText={setEmail}
             style={styles.input}
             keyboardType="email-address"
-            // autoFocus={focus3()}
           />
         </View>
       </View>
@@ -262,6 +266,7 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
         <TouchableOpacity
           style={styles.button_right}
           onPress={step !== 2 ? onPressNext : onSubmit}
+          disabled={disableButton()}
         >
           <Text style={styles.text_button}>{'>'}</Text>
         </TouchableOpacity>
