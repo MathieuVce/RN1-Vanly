@@ -1,4 +1,4 @@
-import { IAuth, IClient } from './IClient';
+import { IAuth, IClient, IDate } from './IClient';
 
 export interface IClientContext {
   client?: null | IClient;
@@ -6,6 +6,7 @@ export interface IClientContext {
   login: TLoginFC;
 }
 export type TLoginFC = (payload: IAuth) => Promise<any>;
+
 
 export const defaultClientValue: IClientContext = {
   client: null,

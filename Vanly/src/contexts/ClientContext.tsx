@@ -35,10 +35,12 @@ export const ClientProvider: React.FC = ({ children }) => {
       });
   };
 
+
+
   return (
     <ClientContext.Provider value={{
       client: user,
-      
+
       login,
     }}
     >
