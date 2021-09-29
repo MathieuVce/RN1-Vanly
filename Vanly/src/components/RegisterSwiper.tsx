@@ -20,24 +20,24 @@ const styles = StyleSheet.create({
   },
   header: {
     marginLeft: 30,
+    marginTop: 30,
   },
   title: {
-    fontSize: 48,
+    fontSize: 45,
     width: 300,
     fontWeight: 'bold',
     color: 'white',
   },
   content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    flex: 0.7,
+    justifyContent : 'center',
+    alignItems : 'center',
   },
   input: {
     textAlign: 'center',
-    height: 64,
-    fontSize: 30,
-    color: 'white',
-    fontWeight: 'bold',
+    fontSize: 25,
+    color : 'white',
+    fontWeight: '700',
   },
   footer: {
     justifyContent: 'space-between',
@@ -50,21 +50,39 @@ const styles = StyleSheet.create({
     height: 64,
     width: 64,
     backgroundColor: '#FEC156',
-    borderRadius: 20,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     fontSize: 30,
     marginRight: 30,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.53,
+    shadowRadius: 13.97,
+  
+    elevation: 21,
   },
   button_left: {
     height: 64,
     width: 64,
     backgroundColor: '#FEC156',
-    borderRadius: 20,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     fontSize: 30,
     marginLeft: 30,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.53,
+    shadowRadius: 13.97,
+  
+    elevation: 21,
   },
   text_button: {
     fontSize: 20,
@@ -159,7 +177,9 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
     return (
       <View style={styles.flex}>
         <View style={styles.header}>
-          <Text style={styles.title}>Hey c&apos;est quoi ton nom?</Text>
+          <Text style={styles.title}>Hey c&apos;est</Text>
+          <Text style={styles.title}>quoi ton </Text>
+          <Text style={styles.title}>nom ? </Text>
         </View>
         <View style={styles.content}>
           <TextInput
@@ -260,7 +280,7 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
             style={styles.button_left}
             onPress={onPressPrevious}
           >
-            <Text style={styles.text_button}>{'<'}</Text>
+            <Text style={styles.text_button}>{'←'}</Text>
           </TouchableOpacity>
         ) : (
           <View />
@@ -271,7 +291,7 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
           onPress={step !== 2 ? onPressNext : onSubmit}
           disabled={disableButton()}
         >
-          <Text style={styles.text_button}>{'>'}</Text>
+          <Text style={styles.text_button}>{'→'}</Text>
         </TouchableOpacity>
       </View>
     </View>
