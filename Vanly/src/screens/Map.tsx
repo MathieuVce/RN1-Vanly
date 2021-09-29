@@ -28,8 +28,12 @@ const mainStyles = StyleSheet.create({
   },
   filters: {
     position: 'absolute',
-    top: -13,
-    left: -16,
+    top: 10,
+    left: 10,
+    height : 60,
+    width : 60,
+    borderRadius : 25,
+    backgroundColor : 'white'
   },
   profil: {
     position: 'absolute',
@@ -472,11 +476,11 @@ export const Map: React.FC<IMapProps> = ({ }) => {
             }
       </MapView>
       <View style={mainStyles.header}>
-        <TouchableOpacity onPress={() => {setOpenFilters(true); }} activeOpacity={0.45}>
-          <Image style={mainStyles.filters} source={require('../assets/filters.png')} />
+        <TouchableOpacity style={mainStyles.filters}  onPress={() => {setOpenFilters(true); }} activeOpacity={0.45}>
+          {/* <Image style={mainStyles.filters} source={require('../assets/filters.png')} /> */}
         </TouchableOpacity>
         <TouchableOpacity onPress={() => {}} activeOpacity={0.45}>
-          <Image style={mainStyles.profil} source={require('../assets/profil.png')} />
+          {/* <Image style={mainStyles.profil} source={require('../assets/profil.png')} /> */}
         </TouchableOpacity>
       </View>
       <ModalE  isOpen={openFilters}  setIsOpen={setOpenFilters} height={16 * 27} close={() => {}}>
