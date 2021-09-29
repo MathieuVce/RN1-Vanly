@@ -5,7 +5,7 @@ import firebase from '../database/firebase';
 import { ModalE } from '../components/Modal';
 import { AppModelNavConnectedProps } from '../roots/AppModelNavConnected';
 import { Item } from '../components/Filters';
-import { AntDesign, FontAwesome5, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
+import { AntDesign, FontAwesome5, FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 type IMapProps = AppModelNavConnectedProps<'Map'>;
@@ -34,7 +34,7 @@ const mainStyles = StyleSheet.create({
     width : 60,
     borderRadius : 25,
     backgroundColor : 'white',
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 12,
@@ -55,7 +55,7 @@ const mainStyles = StyleSheet.create({
     width : 60,
     borderRadius : 25,
     backgroundColor : '#99D3A6',
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 12,
@@ -107,6 +107,35 @@ const mainStyles = StyleSheet.create({
 const filtersStyles = StyleSheet.create({
   filtersView: {
     paddingHorizontal: 16 * 2,
+  },
+});
+
+const profilStyles = StyleSheet.create({
+  profilContainer: {
+    height : 800,
+    display : 'flex',
+    justifyContent : 'center',
+    alignItems : 'center',
+  },
+  backGroundIllus: {
+    top : -620,
+    height : '100%',
+    width : '160%',
+    backgroundColor : '#99D3A6',
+    borderRadius : 280,
+  },
+  profilPicture : {
+    height : 150,
+    width : 150,
+    backgroundColor : '#F2F2F2',
+    position : 'absolute',
+    top : 120,
+    borderRadius : 55,
+    borderWidth : 5,
+    borderColor : '#99D3A6',
+    display : 'flex',
+    justifyContent : 'center',
+    alignItems : 'center',
   },
 });
 
@@ -178,6 +207,7 @@ const itemStyles = StyleSheet.create({
 export const Map: React.FC<IMapProps> = ({ }) => {
 
   const [openFilters, setOpenFilters] = useState(false);
+  const [openProfil, setOpenProfil] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [sites, setSites] = useState<firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>>();
   const [test, setTest] = useState<Array<any>>();
@@ -485,7 +515,6 @@ export const Map: React.FC<IMapProps> = ({ }) => {
           customMapStyle={mapStyle}
           >
             { test?.map((doc, k) => {
-              console.log(doc);
               return (
                 <Marker key={k} coordinate={{ latitude : doc.coords.latitude, longitude : doc.coords.longitude }} onPress={() => {setOpenView(true); setItem(k); }}>
                   {doc.type == 'pointOfView' ? 
@@ -505,11 +534,9 @@ export const Map: React.FC<IMapProps> = ({ }) => {
       <View style={mainStyles.header}>
         <TouchableOpacity style={mainStyles.filters}  onPress={() => {setOpenFilters(true); }} activeOpacity={0.45}>
           <MaterialCommunityIcons name="layers" size={24} color='#99D3A6' />
-          {/* <Image style={mainStyles.filters} source={require('../assets/filters.png')} /> */}
         </TouchableOpacity>
-        <TouchableOpacity style={mainStyles.profil}  onPress={() => {}} activeOpacity={0.45}>
+        <TouchableOpacity style={mainStyles.profil}  onPress={() => {setOpenProfil(true);}} activeOpacity={0.45}>
          <FontAwesome name="user" size={24} color="white" />
-          {/* <Image style={mainStyles.profil} source={require('../assets/profil.png')} /> */}
         </TouchableOpacity>
       </View>
       <ModalE  isOpen={openFilters}  setIsOpen={setOpenFilters} height={16 * 27} close={() => {}}>
@@ -518,6 +545,15 @@ export const Map: React.FC<IMapProps> = ({ }) => {
           <Item name='Water Point' icon={ { name: 'water-off', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.waterPoint = !fieldValue.waterPoint; filterItems(); }} isSelected={fieldValue.waterPoint}/>
           <Item name='Gaz Station' icon={ { name: 'car', type: 'FontAwesome5' }} onPress={() => { fieldValue.gazStation = !fieldValue.gazStation; filterItems(); }} isSelected={fieldValue.gazStation}/>
         </View>
+      </ModalE>
+      <ModalE  isOpen={openProfil}  setIsOpen={setOpenProfil} height={16 * -5} close={() => {}}>
+        <TouchableOpacity style={profilStyles.profilContainer} onPress={() => {setOpenProfil(false);}}>
+            <View style={profilStyles.backGroundIllus}></View>
+            {/* IMPLEMENTER PICK UP PHOTO SUR LA TOUCHABLEOPACITY CI-DESSOUS */}
+            <TouchableOpacity style={profilStyles.profilPicture}>
+              <MaterialIcons name="add-a-photo" size={24} color="darkgrey" />
+            </TouchableOpacity>
+        </TouchableOpacity>
       </ModalE>
       <ModalE  isOpen={openView}  setIsOpen={setOpenView} height={16 * 15} close={() => {}}>
         <View style={itemStyles.container}>
