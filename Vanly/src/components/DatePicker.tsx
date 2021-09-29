@@ -43,22 +43,22 @@ export const DatePicker: React.FC<IDatePickerProps> = ({  }) => {
   const [year, setYear] = useState(undefined);
 
   const onChangeText = () => {
-    client.setRegisterUser({"day": day, "month": month, "year": year})
-  }
+    client.setRegisterUser({ 'day': day, 'month': month, 'year': year });
+  };
 
   return (
       <View style={ styles.container }>
         <View style={styles.container2}>
           <Text style={styles.inputTitle}>Jour</Text>
-          <TextInput style={styles.input} placeholder={"31"} onChangeText={setDay} />
+          <TextInput style={styles.input} placeholder={'31'} onChangeText={setDay} />
         </View>
         <View style={styles.container2}>
           <Text style={styles.inputTitle}>Mois</Text>
-          <TextInput style={styles.input} placeholder={"12"} onChangeText={setMonth} />
+          <TextInput style={styles.input} placeholder={'12'} onChangeText={setMonth} />
         </View>
         <View style={styles.container2}>
           <Text style={styles.inputTitle}>Année</Text>
-          <TextInput style={styles.input} placeholder={"1998"} onChangeText={setYear} />
+          <TextInput style={styles.input} placeholder={'1998'} onChangeText={setYear} />
         </View>
       </View>
   );
