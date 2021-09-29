@@ -16,6 +16,7 @@ export type TLogoutFC = () => Promise<any>;
 export type TResetPasswordFC = (payload: IReset) => Promise<any>;
 export type TGetUserFC = () => Promise<any>;
 
+
 export const defaultClientValue: IClientContext = {
   client: null,
 
