@@ -5,7 +5,7 @@ import firebase from '../database/firebase';
 import { ModalE } from '../components/Modal';
 import { AppModelNavConnectedProps } from '../roots/AppModelNavConnected';
 import { Item } from '../components/Filters';
-import { AntDesign, FontAwesome5 } from '@expo/vector-icons';
+import { AntDesign, FontAwesome5, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 type IMapProps = AppModelNavConnectedProps<'Map'>;
@@ -33,12 +33,39 @@ const mainStyles = StyleSheet.create({
     height : 60,
     width : 60,
     borderRadius : 25,
-    backgroundColor : 'white'
+    backgroundColor : 'white',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 12,
+    },
+    shadowOpacity: 0.58,
+    shadowRadius: 16.00,
+
+    elevation: 24,
+    justifyContent : 'center',
+    alignItems : 'center',
+
   },
   profil: {
     position: 'absolute',
-    top: -16,
-    right: -23,
+    top: 10,
+    right: 10,
+    height : 60,
+    width : 60,
+    borderRadius : 25,
+    backgroundColor : '#99D3A6',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 12,
+    },
+    shadowOpacity: 0.58,
+    shadowRadius: 16.00,
+
+    elevation: 24,
+    justifyContent : 'center',
+    alignItems : 'center',
   },
   filtersView: {
     paddingHorizontal: 16 * 2,
@@ -477,9 +504,11 @@ export const Map: React.FC<IMapProps> = ({ }) => {
       </MapView>
       <View style={mainStyles.header}>
         <TouchableOpacity style={mainStyles.filters}  onPress={() => {setOpenFilters(true); }} activeOpacity={0.45}>
+          <MaterialCommunityIcons name="layers" size={24} color='#99D3A6' />
           {/* <Image style={mainStyles.filters} source={require('../assets/filters.png')} /> */}
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => {}} activeOpacity={0.45}>
+        <TouchableOpacity style={mainStyles.profil}  onPress={() => {}} activeOpacity={0.45}>
+         <FontAwesome name="user" size={24} color="white" />
           {/* <Image style={mainStyles.profil} source={require('../assets/profil.png')} /> */}
         </TouchableOpacity>
       </View>
