@@ -12,11 +12,9 @@ export interface IRegisterClient {
 }
 
 export interface IDate {
-
-    day?: string,
-    month?: string,
-    year?: string
-
+  day?: string,
+  month?: string,
+  year?: string
 }
 
 export interface IAuth {
