@@ -2,12 +2,16 @@ import React, { createContext, useContext, useState } from 'react';
 
 import firebase from '../database/firebase';
 import { IAuth, IClient, IReset } from '../@types/IClient';
-import { defaultClientValue, IClientContext, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC } from '../@types/IClientContext';
+import { defaultClientValue, IClientContext, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TTakePictureFC, TUploadPictureFC } from '../@types/IClientContext';
 import { AlertContext } from './AlertContext';
+import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export const ClientContext = createContext<IClientContext>(defaultClientValue);
 
 export const ClientProvider: React.FC = ({ children }) => {
+
   const [user, setUser] = useState<null | IClient >(null);
   const { Alerts } = useContext(AlertContext);
 
@@ -24,12 +28,11 @@ export const ClientProvider: React.FC = ({ children }) => {
 
         const tmpuser = await getUser();
         if (tmpuser) {
-
           setUser({ 'firstname': tmpuser.displayName, email: tmpuser.email });
+          await AsyncStorage.setItem('user', JSON.stringify({ email: payload.email, password: payload.password, firstname: tmpuser.displayName }));
           Alerts.success({
             title: 'Successful authentication',
-            message: 'Welcome back !',
-            // message: `Welcome back ${tmpuser?.displayName} !`,
+            message: `Welcome back ${tmpuser?.displayName} !`,
           });
         } else {
           Alerts.success({
@@ -47,6 +50,19 @@ export const ClientProvider: React.FC = ({ children }) => {
       });
   };
 
+  const autolog = async () => {
+    
+    const tmpUser = await AsyncStorage.getItem('user');
+
+    if (tmpUser !== null) {
+      await login({ email: JSON.parse(tmpUser!).email, password: JSON.parse(tmpUser!).password });
+      Alerts.success({
+        title: 'Successful authentication',
+        message: `Welcome back ${JSON.parse(tmpUser!).firstname} !`,
+      });
+    }
+  };
+
   const register: TRegisterFC = async (payload: IAuth) => {
     await firebase.auth()
       .createUserWithEmailAndPassword(payload.email, payload.password)
@@ -62,8 +78,9 @@ export const ClientProvider: React.FC = ({ children }) => {
   const logout: TLogoutFC = async () => {
     await firebase.auth()
       .signOut()
-      .then(() => {
+      .then(async () => {
         setUser(null);
+        await AsyncStorage.removeItem('user');
         Alerts.success({
           title: 'See you soon !',
           message: '',
@@ -75,6 +92,35 @@ export const ClientProvider: React.FC = ({ children }) => {
           message: '',
         });
       });
+  };
+
+  const takepicture: TTakePictureFC = async () => {
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [5, 5],
+      quality: 1,
+    });
+
+    if (result.cancelled) {
+      
+    }
+    return result;
+
+  };
+  const uploadpicture: TUploadPictureFC = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [5, 5],
+      quality: 1,
+    });
+
+    if (result.cancelled) {
+
+    }
+    return result;
+
   };
 
   const resetpassword: TResetPasswordFC = async (payload: IReset) => {
@@ -98,7 +144,8 @@ export const ClientProvider: React.FC = ({ children }) => {
     <ClientContext.Provider value={{
       client: user,
       
-      login, register, logout, resetpassword,
+      autolog, login, register, logout, resetpassword,
+      uploadpicture, takepicture,
       getUser,
     }}
     >

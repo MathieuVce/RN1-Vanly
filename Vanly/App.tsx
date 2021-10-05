@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import FlashMessage from 'react-native-flash-message';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -9,7 +9,13 @@ import { AppModelNavConnected } from './src/roots/AppModelNavConnected';
 import { ClientContext, ClientProvider } from './src/contexts/ClientContext';
 
 const Appli: React.FC = () => {
-  const { client } = useContext(ClientContext);
+  const { client, autolog } = useContext(ClientContext);
+
+  useEffect(() => {
+    (async () => {
+      await autolog();
+    })();
+  }, []);
 
   return (
     <NavigationContainer>

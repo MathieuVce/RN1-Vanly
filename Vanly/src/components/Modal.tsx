@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16 * 1.5,
     paddingVertical: 16 * .5,
     borderRadius: 16 * 2,
-    backgroundColor: '#0E3570',
+    backgroundColor: '#0B5F1E',
   },
 
   applyBtnText: {

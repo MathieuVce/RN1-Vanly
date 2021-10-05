@@ -5,8 +5,11 @@ import firebase from '../database/firebase';
 import { ModalE } from '../components/Modal';
 import { AppModelNavConnectedProps } from '../roots/AppModelNavConnected';
 import { Item } from '../components/Filters';
-import { AntDesign, FontAwesome5 } from '@expo/vector-icons';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { VanPoint } from '../components/VanPoint';
+import { VanPointFilter } from '../components/VanPointFilter';
+import { ViewItem } from '../components/ViewItem';
+import { mapStyle } from '../@types/IMap';
 
 type IMapProps = AppModelNavConnectedProps<'Map'>;
 
@@ -31,116 +34,13 @@ const mainStyles = StyleSheet.create({
     top: -13,
     left: -16,
   },
+  filtersView: {
+    paddingHorizontal: 16 * 2,
+  },
   profil: {
     position: 'absolute',
     top: -16,
     right: -23,
-  },
-  filtersView: {
-    paddingHorizontal: 16 * 2,
-  },
-  filtersLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 16 * 2,
-    marginLeft: 16 * 3,
-  },
-  dot: {
-    backgroundColor: 'red',
-    width: 16,
-    height: 16,
-    borderRadius: 20,
-    position: 'absolute',
-    left: 16 * 2.4,
-    top: -5,
-  },
-  filtersText: {
-    fontSize: 22,
-    color: '#1E2E86',
-    paddingHorizontal: 16 * 3,
-    fontWeight: '500',
-  },
-  navigation: {
-    backgroundColor: 'lightgrey',
-    width: 16 * 3.3,
-    height: 16 * 3.3,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 15,
-    position: 'absolute',
-    left: -16,
-  },
-});
-
-const filtersStyles = StyleSheet.create({
-  filtersView: {
-    paddingHorizontal: 16 * 2,
-  },
-});
-
-const itemStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 16 * 7,
-  },
-  head: {
-    flexDirection: 'row',
-    paddingVertical: 8,
-    width: '90%',
-    height: '30%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icon: {
-    width: 16 * 2.5,
-    height: 16 * 2.5,
-    position: 'absolute',
-    bottom: 16,
-    left: 0,
-    backgroundColor: '#FEC156',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 10,
-  },
-  name: {
-    fontSize: 30,
-    color: '#1E2E86',
-    paddingBottom: 16,
-  },
-  image: {
-    width: '90%',
-    height: '100%',
-    borderRadius: 10,
-  },
-  description: {
-    fontSize: 20,
-    color: '#1E2E86',
-    marginVertical: 8,
-  },
-  creator: {
-    flexDirection: 'row',
-    alignSelf: 'flex-start',
-    marginHorizontal: 24,
-  },
-  create: {
-    fontSize: 20,
-    color: '#1E2E86',
-    marginVertical: 8,
-    fontWeight: 'bold',
-  },
-  likeic: {
-    bottom: -13,
-  },
-  like: {
-    fontSize: 20,
-    color: '#FEC156',
-    marginVertical: 16,
-    marginLeft: 16,
-    fontWeight: 'bold',
   },
 });
 
@@ -148,38 +48,20 @@ export const Map: React.FC<IMapProps> = ({ }) => {
 
   const [openFilters, setOpenFilters] = useState(false);
   const [openView, setOpenView] = useState(false);
+  const [index, setIndex] = useState(0);
   const [sites, setSites] = useState<firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>>();
   const [test, setTest] = useState<Array<any>>();
   const [fieldValue] = useState({ 'pointOfView': true, 'waterPoint': true, 'gazStation': true });
-  const [like, setLike] = useState(false);
-  const [item, setItem] = useState(0);
+  const [item, setItem] = useState<any>();
+  const [createNewPoint, setCreateNewPoint] = useState({ 'latitude': 0, 'longitude': 0 });
+  const [openNewPoint, setOpenNewPoint] = useState(false);
   const map = useRef(null);
+  const [values, setValues] = useState({ 'name': '', 'description': '', uri: '' });
 
   const getSites = async () => {
     setSites(await firebase.firestore().collection('Sites').get());
     setTest((await firebase.firestore().collection('Sites').get()).docs.map(doc => doc.data()));
-  };
-
-  const addLike = async () => {
-    const pipes = firebase.firestore().collection('Sites');
-
-    await pipes.doc(sites?.docs[item].id).set({
-      ...sites?.docs[item].data(),
-      likes: sites?.docs[item].data().likes + 1,
-    });
-
-    setSites(await firebase.firestore().collection('Sites').get());
-  };
-
-  const removeLike = async () => {
-    const pipes = firebase.firestore().collection('Sites');
-
-    await pipes.doc(sites?.docs[item].id).set({
-      ...sites?.docs[item].data(),
-      likes: sites?.docs[item].data().likes - 1,
-    });
-
-    setSites(await firebase.firestore().collection('Sites').get());
+    setItem(test ? test[0] : null);
   };
 
   const filterItems = async () => {
@@ -191,254 +73,35 @@ export const Map: React.FC<IMapProps> = ({ }) => {
       if (fieldValue.gazStation && doc.data().type == 'gazStation')
         return doc.data();
       return null;
-    }).filter(function (el) {
-      return el != null;
+    }).filter(function (data) {
+      return data != null;
     }));
   };
+
+  // const handleApply = async () => {
+  //   const pipes = firebase.firestore().collection('Sites');
+
+  //   await pipes.doc('test').set({
+  //     creator: client?.firstname,
+  //     description: values.description,
+  //     image: values.uri,
+  //     likes: 0,
+  //     name: values.name,
+  //     type: 'gazStation',
+  //     coords: createNewPoint,
+  //   });
+
+  //   setSites(await firebase.firestore().collection('Sites').get());
+  //   setTest((await firebase.firestore().collection('Sites').get()).docs.map(doc => doc.data()));
+  //   setItem(test ? test[0] : null);
+  //   setValues({ 'name': '', 'description': '', uri: '' });
+  //   setIndex(0);
+  // };
 
   useEffect(() => {
     getSites();
   }, []);
 
-  const mapStyle = [
-    {
-      'elementType': 'geometry',
-      'stylers': [
-        {
-          'color': '#242f3e',
-        },
-      ],
-    },
-    {
-      'elementType': 'labels.text.fill',
-      'stylers': [
-        {
-          'color': '#746855',
-        },
-      ],
-    },
-    {
-      'elementType': 'labels.text.stroke',
-      'stylers': [
-        {
-          'color': '#242f3e',
-        },
-      ],
-    },
-    {
-      'featureType': 'administrative.land_parcel',
-      'elementType': 'labels',
-      'stylers': [
-        {
-          'visibility': 'off',
-        },
-      ],
-    },
-    {
-      'featureType': 'administrative.locality',
-      'elementType': 'labels.text.fill',
-      'stylers': [
-        {
-          'color': '#d59563',
-        },
-      ],
-    },
-    {
-      'featureType': 'poi',
-      'elementType': 'labels.text',
-      'stylers': [
-        {
-          'visibility': 'off',
-        },
-      ],
-    },
-    {
-      'featureType': 'poi',
-      'elementType': 'labels.text.fill',
-      'stylers': [
-        {
-          'color': '#d59563',
-        },
-      ],
-    },
-    {
-      'featureType': 'poi.business',
-      'stylers': [
-        {
-          'visibility': 'off',
-        },
-      ],
-    },
-    {
-      'featureType': 'poi.park',
-      'elementType': 'geometry',
-      'stylers': [
-        {
-          'color': '#263c3f',
-        },
-      ],
-    },
-    {
-      'featureType': 'poi.park',
-      'elementType': 'labels.text.fill',
-      'stylers': [
-        {
-          'color': '#6b9a76',
-        },
-      ],
-    },
-    {
-      'featureType': 'road',
-      'elementType': 'geometry',
-      'stylers': [
-        {
-          'color': '#38414e',
-        },
-      ],
-    },
-    {
-      'featureType': 'road',
-      'elementType': 'geometry.stroke',
-      'stylers': [
-        {
-          'color': '#212a37',
-        },
-      ],
-    },
-    {
-      'featureType': 'road',
-      'elementType': 'labels.icon',
-      'stylers': [
-        {
-          'visibility': 'off',
-        },
-      ],
-    },
-    {
-      'featureType': 'road',
-      'elementType': 'labels.text.fill',
-      'stylers': [
-        {
-          'color': '#9ca5b3',
-        },
-      ],
-    },
-    {
-      'featureType': 'road.arterial',
-      'elementType': 'labels',
-      'stylers': [
-        {
-          'visibility': 'off',
-        },
-      ],
-    },
-    {
-      'featureType': 'road.highway',
-      'elementType': 'geometry',
-      'stylers': [
-        {
-          'color': '#746855',
-        },
-      ],
-    },
-    {
-      'featureType': 'road.highway',
-      'elementType': 'geometry.stroke',
-      'stylers': [
-        {
-          'color': '#1f2835',
-        },
-      ],
-    },
-    {
-      'featureType': 'road.highway',
-      'elementType': 'labels',
-      'stylers': [
-        {
-          'visibility': 'off',
-        },
-      ],
-    },
-    {
-      'featureType': 'road.highway',
-      'elementType': 'labels.text.fill',
-      'stylers': [
-        {
-          'color': '#f3d19c',
-        },
-      ],
-    },
-    {
-      'featureType': 'road.local',
-      'stylers': [
-        {
-          'visibility': 'off',
-        },
-      ],
-    },
-    {
-      'featureType': 'road.local',
-      'elementType': 'labels',
-      'stylers': [
-        {
-          'visibility': 'off',
-        },
-      ],
-    },
-    {
-      'featureType': 'transit',
-      'stylers': [
-        {
-          'visibility': 'off',
-        },
-      ],
-    },
-    {
-      'featureType': 'transit',
-      'elementType': 'geometry',
-      'stylers': [
-        {
-          'color': '#2f3948',
-        },
-      ],
-    },
-    {
-      'featureType': 'transit.station',
-      'elementType': 'labels.text.fill',
-      'stylers': [
-        {
-          'color': '#d59563',
-        },
-      ],
-    },
-    {
-      'featureType': 'water',
-      'elementType': 'geometry',
-      'stylers': [
-        {
-          'color': '#17263c',
-        },
-      ],
-    },
-    {
-      'featureType': 'water',
-      'elementType': 'labels.text.fill',
-      'stylers': [
-        {
-          'color': '#515c6d',
-        },
-      ],
-    },
-    {
-      'featureType': 'water',
-      'elementType': 'labels.text.stroke',
-      'stylers': [
-        {
-          'color': '#17263c',
-        },
-      ],
-    },
-  ];
   return (
     <View style={mainStyles.container}>
       <MapView style={mainStyles.map}
@@ -452,11 +115,11 @@ export const Map: React.FC<IMapProps> = ({ }) => {
           }}
           showsUserLocation={true}
           customMapStyle={mapStyle}
+          onLongPress={(e) => { setCreateNewPoint(e.nativeEvent.coordinate); setOpenNewPoint(true); }}
           >
             { test?.map((doc, k) => {
-              console.log(doc);
               return (
-                <Marker key={k} coordinate={{ latitude : doc.coords.latitude, longitude : doc.coords.longitude }} onPress={() => {setOpenView(true); setItem(k); }}>
+                <Marker key={k} coordinate={{ latitude : doc.coords.latitude, longitude : doc.coords.longitude }} onPress={() => {setOpenView(true); setItem(doc); }}>
                   {doc.type == 'pointOfView' ? 
                     <Image source={require('../assets/view.png')}/>
                     : doc.type == 'waterPoint' ?
@@ -471,6 +134,7 @@ export const Map: React.FC<IMapProps> = ({ }) => {
             })
             }
       </MapView>
+  
       <View style={mainStyles.header}>
         <TouchableOpacity onPress={() => {setOpenFilters(true); }} activeOpacity={0.45}>
           <Image style={mainStyles.filters} source={require('../assets/filters.png')} />
@@ -479,36 +143,25 @@ export const Map: React.FC<IMapProps> = ({ }) => {
           <Image style={mainStyles.profil} source={require('../assets/profil.png')} />
         </TouchableOpacity>
       </View>
+      
       <ModalE  isOpen={openFilters}  setIsOpen={setOpenFilters} height={16 * 27} close={() => {}}>
-        <View style={filtersStyles.filtersView}>
-          <Item name='Point of View' icon={ { name: 'map-marker', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.pointOfView = !fieldValue.pointOfView; filterItems(); }} isSelected={fieldValue.pointOfView}/>
-          <Item name='Water Point' icon={ { name: 'water-off', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.waterPoint = !fieldValue.waterPoint; filterItems(); }} isSelected={fieldValue.waterPoint}/>
-          <Item name='Gaz Station' icon={ { name: 'car', type: 'FontAwesome5' }} onPress={() => { fieldValue.gazStation = !fieldValue.gazStation; filterItems(); }} isSelected={fieldValue.gazStation}/>
+        <View style={mainStyles.filtersView}>
+          <Item name='Point of View' icon={ { name: 'map-marker', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.pointOfView = !fieldValue.pointOfView; filterItems(); }} isSelected={fieldValue.pointOfView} color={{ icon: '#FEC156', bg: '#FFEECF' }}/>
+          <Item name='Water Point' icon={ { name: 'water-off', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.waterPoint = !fieldValue.waterPoint; filterItems(); }} isSelected={fieldValue.waterPoint} color={{ icon: '#768AF8', bg: '#DAE0FF' }}/>
+          <Item name='Gaz Station' icon={ { name: 'car', type: 'FontAwesome5' }} onPress={() => { fieldValue.gazStation = !fieldValue.gazStation; filterItems(); }} isSelected={fieldValue.gazStation} color={{ icon: '#B98888', bg: '#DEC3C3' }}/>
         </View>
       </ModalE>
+
       <ModalE  isOpen={openView}  setIsOpen={setOpenView} height={16 * 15} close={() => {}}>
-        <View style={itemStyles.container}>
-          <View style={itemStyles.head}>
-            <View style={itemStyles.icon}>
-              <FontAwesome5 name='map-marker-alt' size={20} color='white'/>
-            </View>
-            <Text style={itemStyles.name}>{sites?.docs[item].data().name}</Text>
-          </View>
-          <Image style={itemStyles.image} source={{ uri : sites?.docs[item].data().image }}/>
-          <Text style={{ ...itemStyles.description, paddingHorizontal: 16 }}>{sites?.docs[item].data().description}</Text>
-          <View style={itemStyles.creator}>
-            <Text style={itemStyles.description}>by </Text>
-            <Text style={itemStyles.create}>{sites?.docs[item].data().creator}</Text>
-          </View>
-          <View style={itemStyles.creator}>
-            { like ? 
-              <AntDesign name='like1' size={27} color='#FEC156' style={itemStyles.likeic} onPress={() => {setLike(!like); removeLike(); }}/>
-              :
-              <AntDesign name='like2' size={27} color='lightgrey' style={itemStyles.likeic} onPress={() => {setLike(!like); addLike(); }}/>
-            }
-            <Text style={itemStyles.like}>{sites?.docs[item].data().likes}</Text>
-          </View>
-        </View>
+        <ViewItem item={item} setSites={setSites}/>
+      </ModalE>
+
+      <ModalE isOpen={openNewPoint} setIsOpen={setOpenNewPoint} height={16 * 3} close={() => { setIndex(0); setValues({ 'name': '', 'description': '', uri: '' }); }}>
+          { index == 0 ?
+            <VanPoint setIndex={setIndex} setValues={setValues} values={values}/>  
+            :
+            <VanPointFilter setIndex={setIndex} createNewPoint={createNewPoint} values={values} setOpenNewPoint={setOpenNewPoint} setTest={setTest} setSites={setSites} setValues={setValues}/>
+          }
       </ModalE>
     </View>
   );
