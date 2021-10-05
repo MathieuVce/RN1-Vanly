@@ -6,11 +6,14 @@ import {
   TouchableOpacity,
   TextInput,
   Keyboard,
+  Button,
 } from 'react-native';
 import { ClientContext } from '../contexts/ClientContext';
 import Swiper from 'react-native-swiper/src';
 
-interface IRegisterSwiperProps {}
+interface IRegisterSwiperProps {
+  navigation: StackNavigationProp<AppModelNavParamList, T>;
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -30,17 +33,24 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 0.7,
-    justifyContent : 'center',
-    alignItems : 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   input: {
     textAlign: 'center',
     fontSize: 25,
-    color : 'white',
+    color: 'white',
     fontWeight: '700',
   },
   footer: {
     justifyContent: 'space-between',
+    // alignItems: 'flex-end',
+    marginBottom: 20,
+    flexDirection: 'row',
+    width: '100%',
+  },
+  footer2: {
+    justifyContent: 'center',
     // alignItems: 'flex-end',
     marginBottom: 20,
     flexDirection: 'row',
@@ -62,7 +72,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.53,
     shadowRadius: 13.97,
-  
+
     elevation: 21,
   },
   button_left: {
@@ -81,7 +91,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.53,
     shadowRadius: 13.97,
-  
+
     elevation: 21,
   },
   text_button: {
@@ -121,9 +131,22 @@ const styles = StyleSheet.create({
     width: 100,
   },
   swiper: {},
+  centerText: {
+    // backgroundColor: 'grey',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  subscribeText: {
+    fontSize: 16,
+    // textAlign: 'center',
+    // alignItems: 'center',
+  },
+  subscribeButton: {
+    backgroundColor: 'pink',
+  },
 });
 
-export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
+export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({ navigation }) => {
   const { register } = useContext(ClientContext);
   const [day, setDay] = useState(undefined);
   const [month, setMonth] = useState(undefined);
@@ -293,6 +316,16 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
         >
           <Text style={styles.text_button}>{'→'}</Text>
         </TouchableOpacity>
+      </View>
+      <View style={styles.footer2}>
+        <View style={styles.centerText}>
+          <Text style={styles.subscribeText}>Déjà inscrit? </Text>
+        </View>
+        <Button
+          title="Connectez vous!"
+          onPress={() => navigation.navigate('Login')}
+          style={styles.subscribeButton}
+        />
       </View>
     </View>
   );

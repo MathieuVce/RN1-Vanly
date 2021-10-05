@@ -23,7 +23,7 @@ const RootStack = createStackNavigator<AppModelNavParamList>();
 
 export const AppModelNav: React.FC<IAppModelNavProps> = () => (
   <RootStack.Navigator
-    initialRouteName="Register"
+    initialRouteName="Login"
     screenOptions={{
       header: () => null,
     }}
