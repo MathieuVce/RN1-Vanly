@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { ActionSheetIOS, StyleSheet, TouchableOpacity, View, Image, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 
 import firebase from '../database/firebase';
 import { ClientContext } from '../contexts/ClientContext';
@@ -112,6 +113,7 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
       setUri(res[1].uri);
       var user = firebase.auth().currentUser;
       user?.updateProfile({  photoURL: res[1].uri });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     })().catch((error) => {
       console.log(error);
     }); 
@@ -146,7 +148,7 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
         <Text style={profilStyles.nameText}>{client?.firstname}</Text>
         <Text style={profilStyles.emailText}>{client?.email}</Text>
       </View>
-      <TouchableOpacity  style={profilStyles.logout} onPress={() => {logout();}} activeOpacity={0.6}>
+      <TouchableOpacity  style={profilStyles.logout} onPress={() => {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); logout();}} activeOpacity={0.6}>
         <MaterialIcons name="logout" size={24} color="#525566"/>
       </TouchableOpacity>
     </TouchableOpacity>

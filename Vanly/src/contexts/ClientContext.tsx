@@ -58,10 +58,6 @@ export const ClientProvider: React.FC = ({ children }) => {
 
     if (tmpUser !== null) {
       await login({ email: JSON.parse(tmpUser!).email, password: JSON.parse(tmpUser!).password });
-      Alerts.success({
-        title: 'Successful authentication',
-        message: `Welcome back ${JSON.parse(tmpUser!).firstname} !`,
-      });
     }
   };
 

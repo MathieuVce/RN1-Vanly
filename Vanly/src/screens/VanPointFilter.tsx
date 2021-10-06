@@ -1,6 +1,8 @@
 import firebase from '../database/firebase';
 import React, { useContext, useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
+import * as Haptics from 'expo-haptics';
+
 import { ClientContext } from '../contexts/ClientContext';
 import { Item } from '../components/Filters';
 
@@ -86,9 +88,16 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, value
   const [fieldValue] = useState({ 'pointOfView': false, 'waterPoint': false, 'gazStation': false });
 
   const disable = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     if (!fieldValue.pointOfView && !fieldValue.waterPoint && !fieldValue.gazStation)
       return true;
     return false;
+  };
+
+  const sleep = (ms: number) => {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
   };
 
   return (
@@ -128,8 +137,8 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, value
           </TouchableOpacity>
         <TouchableOpacity
             style={newPointFilterStyles.button_right}
-            onPress={async () => { 
-              setOpenNewPoint(false);
+            onPress={async () => {
+              setIndex(2);
               const pipes = firebase.firestore().collection('Sites');
 
               await pipes.doc(values.name).set({
@@ -141,9 +150,14 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, value
                 type: fieldValue.pointOfView ? 'pointOfView' : fieldValue.waterPoint ? 'waterPoint' : 'gazStation',
                 coords: createNewPoint,
               });
-
+              setIndex(3);
+              
               setSites(await firebase.firestore().collection('Sites').get());
               setTest((await firebase.firestore().collection('Sites').get()).docs.map(doc => doc.data()));
+
+              await sleep(1300);
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              setOpenNewPoint(false);
               setIndex(0);
               setValues({ 'name': '', 'description': '', uri: '' });
             }}

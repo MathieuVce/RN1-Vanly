@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Image, TouchableOpacity, Text, Dimensions } from 'react-native';
+import { StyleSheet, View, Image, TouchableOpacity, Text, Dimensions, ActivityIndicator } from 'react-native';
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import * as Haptics from 'expo-haptics';
 
 import firebase from '../database/firebase';
 import { ModalE } from '../components/Modal';
@@ -74,6 +75,22 @@ const mainStyles = StyleSheet.create({
     justifyContent : 'center',
     alignItems : 'center',
   },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16 * 14,
+  },
+  check: {
+    width: 16 * 10,
+    height: 16 * 10,
+  },
+  checkText: {
+    fontSize: 25,
+    color: '#525566',
+    position: 'absolute',
+    top: -16,
+  },
 });
 
 export const Map: React.FC<IMapProps> = ({ }) => {
@@ -88,8 +105,9 @@ export const Map: React.FC<IMapProps> = ({ }) => {
   const [item, setItem] = useState<any>();
   const [createNewPoint, setCreateNewPoint] = useState({ 'latitude': 0, 'longitude': 0 });
   const [openNewPoint, setOpenNewPoint] = useState(false);
-  const map = useRef(null);
+  var mapRef = useRef<MapView>();
   const [values, setValues] = useState({ 'name': '', 'description': '', uri: '' });
+  const [iconSize, setIconSize] = useState({ 'width': 42, 'height': 50 });
 
   const getSites = async () => {
     setSites(await firebase.firestore().collection('Sites').get());
@@ -111,6 +129,18 @@ export const Map: React.FC<IMapProps> = ({ }) => {
     }));
   };
 
+  const onMapChange = async () => {
+    if (mapRef) {
+      try {
+        const camera = await mapRef.getCamera();
+        console.log(camera.zoom);
+        setIconSize({ 'width': camera.zoom * 4, 'height': camera.zoom * 4.8 });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
   useEffect(() => {
     getSites();
   }, []);
@@ -118,7 +148,7 @@ export const Map: React.FC<IMapProps> = ({ }) => {
   return (
     <View style={mainStyles.container}>
       <MapView style={mainStyles.map}
-          ref={map}
+          ref={(ref) => mapRef = ref}
           provider={PROVIDER_GOOGLE}
           initialRegion={{
             latitude: 43.1030272,
@@ -128,17 +158,18 @@ export const Map: React.FC<IMapProps> = ({ }) => {
           }}
           showsUserLocation={true}
           customMapStyle={mapStyle}
-          onLongPress={(e) => { setCreateNewPoint(e.nativeEvent.coordinate); setOpenNewPoint(true); }}
+          onLongPress={(e) => { setCreateNewPoint(e.nativeEvent.coordinate); setOpenNewPoint(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }}
+          onRegionChange={onMapChange}
           >
             { test?.map((doc, k) => {
               return (
-                <Marker key={k} coordinate={{ latitude : doc.coords.latitude, longitude : doc.coords.longitude }} onPress={() => {setOpenView(true); setItem(doc); }}>
+                <Marker key={k} coordinate={{ latitude : doc.coords.latitude, longitude : doc.coords.longitude }} onPress={() => {setOpenView(true); setItem(doc); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }}>
                   {doc.type == 'pointOfView' ? 
-                    <Image source={require('../assets/view.png')}/>
+                    <Image style={{ width: iconSize.width, height: iconSize.height }} source={require('../assets/view.png')}/>
                     : doc.type == 'waterPoint' ?
-                    <Image source={require('../assets/water.png')}/>
+                    <Image style={{ width: iconSize.width, height: iconSize.height }} source={require('../assets/water.png')}/>
                       : doc.type == 'gazStation' ?
-                      <Image source={require('../assets/gaz.png')}/>
+                      <Image style={{ width: iconSize.width, height: iconSize.height }} source={require('../assets/gaz.png')}/>
                         :
                         <Text></Text>
                   }
@@ -149,19 +180,19 @@ export const Map: React.FC<IMapProps> = ({ }) => {
       </MapView>
   
       <View style={mainStyles.header}>
-        <TouchableOpacity style={mainStyles.filters}  onPress={() => {setOpenFilters(true); }} activeOpacity={0.45}>
+        <TouchableOpacity style={mainStyles.filters}  onPress={() => {setOpenFilters(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }} activeOpacity={0.45}>
           <MaterialCommunityIcons name="layers" size={24} color={ openFilters ? 'lightgrey' : '#99D3A6'} />
         </TouchableOpacity>
-        <TouchableOpacity style={mainStyles.profil}  onPress={() => {setOpenProfil(true);}} activeOpacity={0.45}>
+        <TouchableOpacity style={mainStyles.profil}  onPress={() => {setOpenProfil(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);}} activeOpacity={0.45}>
           <FontAwesome name="user" size={24} color="#99D3A6" />
         </TouchableOpacity>
       </View>
       
       <ModalE  isOpen={openFilters}  setIsOpen={setOpenFilters} height={16 * 27} close={() => {}}>
         <View style={mainStyles.filtersView}>
-          <Item name='Point of View' icon={ { name: 'map-marker', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.pointOfView = !fieldValue.pointOfView; filterItems(); }} isSelected={fieldValue.pointOfView} color={{ icon: '#FEC156', bg: '#FFEECF' }}/>
-          <Item name='Water Point' icon={ { name: 'water-off', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.waterPoint = !fieldValue.waterPoint; filterItems(); }} isSelected={fieldValue.waterPoint} color={{ icon: '#768AF8', bg: '#DAE0FF' }}/>
-          <Item name='Gaz Station' icon={ { name: 'car', type: 'FontAwesome5' }} onPress={() => { fieldValue.gazStation = !fieldValue.gazStation; filterItems(); }} isSelected={fieldValue.gazStation} color={{ icon: '#B98888', bg: '#DEC3C3' }}/>
+          <Item name='Point of View' icon={ { name: 'map-marker', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.pointOfView = !fieldValue.pointOfView; filterItems();Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }} isSelected={fieldValue.pointOfView} color={{ icon: '#FEC156', bg: '#FFEECF' }}/>
+          <Item name='Water Point' icon={ { name: 'water-off', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.waterPoint = !fieldValue.waterPoint; filterItems();Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }} isSelected={fieldValue.waterPoint} color={{ icon: '#768AF8', bg: '#DAE0FF' }}/>
+          <Item name='Gaz Station' icon={ { name: 'car', type: 'FontAwesome5' }} onPress={() => { fieldValue.gazStation = !fieldValue.gazStation; filterItems();Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }} isSelected={fieldValue.gazStation} color={{ icon: '#B98888', bg: '#DEC3C3' }}/>
         </View>
       </ModalE>
 
@@ -176,8 +207,18 @@ export const Map: React.FC<IMapProps> = ({ }) => {
       <ModalE isOpen={openNewPoint} setIsOpen={setOpenNewPoint} height={16 * 3} close={() => { setIndex(0); setValues({ 'name': '', 'description': '', uri: '' }); }}>
           { index == 0 ?
             <VanPoint setIndex={setIndex} setValues={setValues} values={values}/>  
-            :
-            <VanPointFilter setIndex={setIndex} createNewPoint={createNewPoint} values={values} setOpenNewPoint={setOpenNewPoint} setTest={setTest} setSites={setSites} setValues={setValues}/>
+            : index == 1 ?
+              <VanPointFilter setIndex={setIndex} createNewPoint={createNewPoint} values={values} setOpenNewPoint={setOpenNewPoint} setTest={setTest} setSites={setSites} setValues={setValues}/>
+              : index == 2 ?
+                <View style={mainStyles.center}>
+                  <ActivityIndicator size={'large'} color='#99D3A6'></ActivityIndicator>
+                </View>
+                : index == 3 ?
+                  <View style={mainStyles.center}>
+                    <Image style={mainStyles.check} source={require('../assets/check.gif')}></Image>
+                    <Text style={mainStyles.checkText}>Vanpoint added !</Text>
+                  </View> 
+                  : <View></View>
           }
       </ModalE>
     </View>
