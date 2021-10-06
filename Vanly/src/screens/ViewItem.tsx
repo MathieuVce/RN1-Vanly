@@ -76,13 +76,13 @@ const itemStyles = StyleSheet.create({
     fontWeight: 'bold',
   },
   likeic: {
-    bottom: -13,
+    bottom: -8,
   },
   like: {
     fontSize: 20,
     color: '#FEC156',
     marginVertical: 16,
-    marginLeft: 16,
+    marginLeft: 8,
     fontWeight: 'bold',
   },
 });
@@ -164,11 +164,11 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites }) => {
       </View>
       <View style={itemStyles.creator}>
         { like ? 
-          <AntDesign name='like1' size={27} color='#FEC156' style={itemStyles.likeic} onPress={() => {setLike(!like); addLike(); }}/>
+          <AntDesign name='like1' size={27} color={item.type == 'pointOfView' ? '#FEC156' : item.type == 'waterPoint' ? '#768AF8' : item.type == 'gazStation' ? '#B98888' : undefined} style={itemStyles.likeic} onPress={() => {setLike(!like); addLike(); }}/>
           :
           <AntDesign name='like2' size={27} color='lightgrey' style={itemStyles.likeic} onPress={() => {setLike(!like); removeLike(); }}/>
         }
-        <Text style={itemStyles.like}>{item?.likes}</Text>
+        <Text style={{ ...itemStyles.like, color: item.type == 'pointOfView' ? '#FEC156' : item.type == 'waterPoint' ? '#768AF8' : item.type == 'gazStation' ? '#B98888' : undefined }}>{item?.likes}</Text>
       </View>
     </View>
   );

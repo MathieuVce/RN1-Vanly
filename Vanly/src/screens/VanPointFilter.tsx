@@ -2,7 +2,7 @@ import firebase from '../database/firebase';
 import React, { useContext, useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import { ClientContext } from '../contexts/ClientContext';
-import { Item } from './Filters';
+import { Item } from '../components/Filters';
 
 interface IVanPointFilterProps {
   setIndex: React.Dispatch<React.SetStateAction<number>>

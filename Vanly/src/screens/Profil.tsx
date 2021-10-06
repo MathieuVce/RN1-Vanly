@@ -37,6 +37,15 @@ const profilStyles = StyleSheet.create({
     display : 'flex',
     justifyContent : 'center',
     alignItems : 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.58,
+    shadowRadius: 16.00,
+
+    elevation: 21,
   },
   picture: {
     width: '102%',

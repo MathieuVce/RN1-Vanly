@@ -7,11 +7,11 @@ import firebase from '../database/firebase';
 import { ModalE } from '../components/Modal';
 import { AppModelNavConnectedProps } from '../roots/AppModelNavConnected';
 import { Item } from '../components/Filters';
-import { VanPoint } from '../components/VanPoint';
-import { VanPointFilter } from '../components/VanPointFilter';
-import { ViewItem } from '../components/ViewItem';
+import { VanPoint } from './VanPoint';
+import { VanPointFilter } from './VanPointFilter';
+import { ViewItem } from './ViewItem';
 import { mapStyle } from '../@types/IMap';
-import { Profil } from '../components/Profil';
+import { Profil } from './Profil';
 
 type IMapProps = AppModelNavConnectedProps<'Map'>;
 
@@ -56,7 +56,7 @@ const mainStyles = StyleSheet.create({
   },
   profil: {
     position: 'absolute',
-    top: 10,
+    top: 8,
     right: 10,
     height : 60,
     width : 60,
@@ -150,7 +150,7 @@ export const Map: React.FC<IMapProps> = ({ }) => {
   
       <View style={mainStyles.header}>
         <TouchableOpacity style={mainStyles.filters}  onPress={() => {setOpenFilters(true); }} activeOpacity={0.45}>
-          <MaterialCommunityIcons name="layers" size={24} color='#99D3A6' />
+          <MaterialCommunityIcons name="layers" size={24} color={ openFilters ? 'lightgrey' : '#99D3A6'} />
         </TouchableOpacity>
         <TouchableOpacity style={mainStyles.profil}  onPress={() => {setOpenProfil(true);}} activeOpacity={0.45}>
           <FontAwesome name="user" size={24} color="#99D3A6" />
