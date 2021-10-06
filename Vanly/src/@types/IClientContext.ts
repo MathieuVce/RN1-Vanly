@@ -22,6 +22,7 @@ export type TLoginFC = (payload: IAuth) => Promise<any>;
 export type TRegisterFC = (payload: IAuth) => Promise<any>;
 export type TResetPasswordFC = (payload: IReset) => Promise<any>;
 
+
 export const defaultClientValue: IClientContext = {
   client: null,
 

@@ -1,15 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity, Text, Dimensions } from 'react-native';
+import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import firebase from '../database/firebase';
 import { ModalE } from '../components/Modal';
 import { AppModelNavConnectedProps } from '../roots/AppModelNavConnected';
 import { Item } from '../components/Filters';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { VanPoint } from '../components/VanPoint';
 import { VanPointFilter } from '../components/VanPointFilter';
 import { ViewItem } from '../components/ViewItem';
 import { mapStyle } from '../@types/IMap';
+import { Profil } from '../components/Profil';
 
 type IMapProps = AppModelNavConnectedProps<'Map'>;
 
@@ -31,22 +33,53 @@ const mainStyles = StyleSheet.create({
   },
   filters: {
     position: 'absolute',
-    top: -13,
-    left: -16,
+    top: 10,
+    left: 10,
+    height : 60,
+    width : 60,
+    borderRadius : 25,
+    backgroundColor : 'white',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 12,
+    },
+    shadowOpacity: 0.58,
+    shadowRadius: 16.00,
+
+    elevation: 24,
+    justifyContent : 'center',
+    alignItems : 'center',
   },
   filtersView: {
     paddingHorizontal: 16 * 2,
   },
   profil: {
     position: 'absolute',
-    top: -16,
-    right: -23,
+    top: 10,
+    right: 10,
+    height : 60,
+    width : 60,
+    borderRadius : 25,
+    backgroundColor : 'white',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 12,
+    },
+    shadowOpacity: 0.58,
+    shadowRadius: 16.00,
+
+    elevation: 24,
+    justifyContent : 'center',
+    alignItems : 'center',
   },
 });
 
 export const Map: React.FC<IMapProps> = ({ }) => {
 
   const [openFilters, setOpenFilters] = useState(false);
+  const [openProfil, setOpenProfil] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [index, setIndex] = useState(0);
   const [sites, setSites] = useState<firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>>();
@@ -77,26 +110,6 @@ export const Map: React.FC<IMapProps> = ({ }) => {
       return data != null;
     }));
   };
-
-  // const handleApply = async () => {
-  //   const pipes = firebase.firestore().collection('Sites');
-
-  //   await pipes.doc('test').set({
-  //     creator: client?.firstname,
-  //     description: values.description,
-  //     image: values.uri,
-  //     likes: 0,
-  //     name: values.name,
-  //     type: 'gazStation',
-  //     coords: createNewPoint,
-  //   });
-
-  //   setSites(await firebase.firestore().collection('Sites').get());
-  //   setTest((await firebase.firestore().collection('Sites').get()).docs.map(doc => doc.data()));
-  //   setItem(test ? test[0] : null);
-  //   setValues({ 'name': '', 'description': '', uri: '' });
-  //   setIndex(0);
-  // };
 
   useEffect(() => {
     getSites();
@@ -136,11 +149,11 @@ export const Map: React.FC<IMapProps> = ({ }) => {
       </MapView>
   
       <View style={mainStyles.header}>
-        <TouchableOpacity onPress={() => {setOpenFilters(true); }} activeOpacity={0.45}>
-          <Image style={mainStyles.filters} source={require('../assets/filters.png')} />
+        <TouchableOpacity style={mainStyles.filters}  onPress={() => {setOpenFilters(true); }} activeOpacity={0.45}>
+          <MaterialCommunityIcons name="layers" size={24} color='#99D3A6' />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => {}} activeOpacity={0.45}>
-          <Image style={mainStyles.profil} source={require('../assets/profil.png')} />
+        <TouchableOpacity style={mainStyles.profil}  onPress={() => {setOpenProfil(true);}} activeOpacity={0.45}>
+          <FontAwesome name="user" size={24} color="#99D3A6" />
         </TouchableOpacity>
       </View>
       
@@ -150,6 +163,10 @@ export const Map: React.FC<IMapProps> = ({ }) => {
           <Item name='Water Point' icon={ { name: 'water-off', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.waterPoint = !fieldValue.waterPoint; filterItems(); }} isSelected={fieldValue.waterPoint} color={{ icon: '#768AF8', bg: '#DAE0FF' }}/>
           <Item name='Gaz Station' icon={ { name: 'car', type: 'FontAwesome5' }} onPress={() => { fieldValue.gazStation = !fieldValue.gazStation; filterItems(); }} isSelected={fieldValue.gazStation} color={{ icon: '#B98888', bg: '#DEC3C3' }}/>
         </View>
+      </ModalE>
+
+      <ModalE  isOpen={openProfil}  setIsOpen={setOpenProfil} height={16 * -5} close={() => {}}>
+        <Profil setOpenProfil={setOpenProfil}/>
       </ModalE>
 
       <ModalE  isOpen={openView}  setIsOpen={setOpenView} height={16 * 15} close={() => {}}>

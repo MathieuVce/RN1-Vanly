@@ -18,18 +18,20 @@ export const ClientProvider: React.FC = ({ children }) => {
   const getUser: TGetUserFC = async () => {
     const tmpuser = firebase.auth().currentUser;
 
-    return tmpuser ? { displayName: tmpuser.displayName, email: tmpuser.email } : null;
+    return tmpuser
+      ? tmpuser
+      : null;
   };
 
   const login: TLoginFC = async payload => {
-    await firebase.auth()
+    await firebase
+      .auth()
       .signInWithEmailAndPassword(payload.email, payload.password)
       .then(async () => {
-
         const tmpuser = await getUser();
         if (tmpuser) {
-          setUser({ 'firstname': tmpuser.displayName, email: tmpuser.email });
-          await AsyncStorage.setItem('user', JSON.stringify({ email: payload.email, password: payload.password, firstname: tmpuser.displayName }));
+          setUser({ 'firstname': tmpuser.displayName, email: tmpuser.email, picture: tmpuser.photoURL });
+          await AsyncStorage.setItem('user', JSON.stringify({ email: payload.email, password: payload.password, firstname: tmpuser.displayName, picture: tmpuser.photoURL }));
           Alerts.success({
             title: 'Successful authentication',
             message: `Welcome back ${tmpuser?.displayName} !`,
@@ -64,8 +66,19 @@ export const ClientProvider: React.FC = ({ children }) => {
   };
 
   const register: TRegisterFC = async (payload: IAuth) => {
-    await firebase.auth()
+    await firebase
+      .auth()
       .createUserWithEmailAndPassword(payload.email, payload.password)
+      .then(async () => {
+        const tmpuser = await getUser();
+        if (tmpuser) {
+          setUser({ firstname: tmpuser.displayName, email: tmpuser.email });
+          Alerts.success({
+            title: 'Successful Registration',
+            message: 'Welcome back !',
+          });
+        }
+      })
       .catch(error => {
         console.log(error);
         Alerts.warning({
@@ -76,7 +89,8 @@ export const ClientProvider: React.FC = ({ children }) => {
   };
 
   const logout: TLogoutFC = async () => {
-    await firebase.auth()
+    await firebase
+      .auth()
       .signOut()
       .then(async () => {
         setUser(null);
@@ -124,7 +138,8 @@ export const ClientProvider: React.FC = ({ children }) => {
   };
 
   const resetpassword: TResetPasswordFC = async (payload: IReset) => {
-    await firebase.auth()
+    await firebase
+      .auth()
       .sendPasswordResetEmail(payload.email)
       .then(() => {
         Alerts.success({

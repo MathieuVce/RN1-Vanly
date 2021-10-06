@@ -22,11 +22,11 @@ const newPointStyles = StyleSheet.create({
   },
   middleContainer: {
     width: '100%',
-    height: '65%',
+    height: '64%',
   },
   bottomContainer: {
     width: '100%',
-    height: '10%',
+    height: '20%',
     alignItems: 'flex-end',
     justifyContent: 'center',
   },
@@ -38,6 +38,7 @@ const newPointStyles = StyleSheet.create({
   button_right: {
     height: 64,
     width: 64,
+    position: 'absolute',
     backgroundColor: 'white',
     borderRadius: 25,
     justifyContent: 'center',
@@ -70,7 +71,7 @@ const newPointStyles = StyleSheet.create({
     marginTop: 16 * 2,
     borderWidth: 1,
     borderStyle: 'dashed',
-    height: 16 * 15,
+    height: 16 * 20,
     borderRadius: 20,
     borderColor: 'grey',
     alignItems: 'center',

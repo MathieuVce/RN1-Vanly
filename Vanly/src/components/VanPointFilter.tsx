@@ -24,11 +24,11 @@ const newPointFilterStyles = StyleSheet.create({
     fontSize: 30,
     color: '#525566',
     fontWeight: 'bold',
-    marginBottom: 16 * 2,
+    marginBottom: 16 * 5,
   },
   middleContainer: {
     width: '100%',
-    height: '55%',
+    height: '49.35%',
   },
   bottomContainer: {
     width: '180%',
@@ -43,7 +43,7 @@ const newPointFilterStyles = StyleSheet.create({
   },
   button_left: {
     alignSelf: 'flex-start',
-    bottom: -16 * 4.4,
+    bottom: -16 * 6.3,
     height: 64,
     width: 64,
     backgroundColor: 'white',
@@ -55,13 +55,13 @@ const newPointFilterStyles = StyleSheet.create({
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.53,
-    shadowRadius: 13.97,
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
   
     elevation: 21,
   },
   button_right: {
-    bottom: -4,
+    bottom: -16 * 2.3,
     height: 64,
     width: 64,
     backgroundColor: 'white',
