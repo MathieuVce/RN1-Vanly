@@ -8,6 +8,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 interface IViewItemProps {
   item: any
   setSites: React.Dispatch<React.SetStateAction<any>>
+  image: any
 }
 
 const itemStyles = StyleSheet.create({
@@ -16,32 +17,32 @@ const itemStyles = StyleSheet.create({
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16 * 3,
+    marginTop: 16,
     marginHorizontal: 16,
   },
   head: {
     flexDirection: 'row',
-    paddingVertical: 0,
     width: '90%',
     height: '30%',
     alignItems: 'center',
     justifyContent: 'center',
   },
   icon: {
-    width: 16 * 2.5,
-    height: 16 * 2.5,
+    width: 16 * 3.3,
+    height: 16 * 3.3,
     position: 'absolute',
     bottom: 16 * 2.2,
-    left: 0,
-    backgroundColor: '#FEC156',
+    left: -3,
+    backgroundColor: '#FFEECF',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 10,
+    borderRadius: 22,
   },
   name: {
     fontSize: 30,
-    color: '#1E2E86',
-    paddingBottom: 0,
+    color: '#525566',
+    fontWeight: 'bold',
+    paddingLeft: 16 * 2.5,
   },
   image: {
     width: '100%',
@@ -50,7 +51,7 @@ const itemStyles = StyleSheet.create({
   },
   touchImage: {
     width: Dimensions.get('window').width - 16 * 4,
-    height: 16 * 10,
+    height: 16 * 15,
     alignItems: 'center',
   },
   modalImage: {
@@ -61,7 +62,7 @@ const itemStyles = StyleSheet.create({
   },
   description: {
     fontSize: 20,
-    color: '#1E2E86',
+    color: 'grey',
     marginVertical: 8,
   },
   creator: {
@@ -71,12 +72,12 @@ const itemStyles = StyleSheet.create({
   },
   create: {
     fontSize: 20,
-    color: '#1E2E86',
+    color: '#525566',
     marginVertical: 8,
     fontWeight: 'bold',
   },
   likeic: {
-    bottom: -8,
+    bottom: -12,
   },
   like: {
     fontSize: 20,
@@ -87,7 +88,7 @@ const itemStyles = StyleSheet.create({
   },
 });
 
-export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites }) => {
+export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites, image }) => {
 
   const [like, setLike] = useState(false);
 
@@ -136,15 +137,15 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites }) => {
         {
           item.type == 'pointOfView' ?
             <View style={itemStyles.icon}>
-                <FontAwesome5 name='map-marker-alt' size={20} color='white'/>
+                <FontAwesome5 name='map-marker-alt' size={20} color='#FEC156'/>
             </View>
             : item.type == 'waterPoint' ?
-              <View style={{ ...itemStyles.icon, backgroundColor: '#768AF8' }}>
-                <MaterialCommunityIcons name='water-off' size={20} color='white'/>
+              <View style={{ ...itemStyles.icon, backgroundColor: '#DAE0FF' }}>
+                <MaterialCommunityIcons name='water-off' size={20} color='#768AF8'/>
               </View>
               : item.type == 'gazStation' ?
-                <View style={{ ...itemStyles.icon, backgroundColor: '#B98888' }}>
-                  <FontAwesome5 name='car' size={20} color='white'/>
+                <View style={{ ...itemStyles.icon, backgroundColor: '#DEC3C3' }}>
+                  <FontAwesome5 name='car' size={20} color='#B98888'/>
                 </View>
                 :
                 <View>
@@ -155,9 +156,9 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites }) => {
         </TouchableOpacity>
       </View>
       <TouchableOpacity style={itemStyles.touchImage} onPress={() => {}}>
-        <Image style={itemStyles.image} source={{ uri : item?.image }}/>
+        <Image style={itemStyles.image} source={{ uri : image }}/>
       </TouchableOpacity>
-      <Text style={{ ...itemStyles.description, paddingHorizontal: 16, marginBottom: 16 * 4 }}>{item?.description}</Text>
+      <Text style={{ ...itemStyles.description, paddingHorizontal: 16, marginBottom: 16 }}>{item?.description}</Text>
       <View style={itemStyles.creator}>
         <Text style={itemStyles.description}>by </Text>
         <Text style={itemStyles.create}>{item?.creator}</Text>

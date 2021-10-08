@@ -1,10 +1,9 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ActionSheetIOS, StyleSheet, TouchableOpacity, View, Image, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 
-import firebase from '../database/firebase';
 import { ClientContext } from '../contexts/ClientContext';
 
 interface IProfilProps {
@@ -94,9 +93,9 @@ const profilStyles = StyleSheet.create({
 
 export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
 
-  const { uploadpicture, takepicture, client, logout } = useContext(ClientContext);
+  const { uploadpicture, takepicture, client, logout, updatePicture, getImage } = useContext(ClientContext);
 
-  const [uri, setUri] = useState(client?.picture);
+  const [uri, setUri] = useState(null);
 
   const getPermissionAsync = async (roll: boolean) => {
 
@@ -107,12 +106,17 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
     return status;
   };
 
+  const getPicture = async () => {
+    console.log(client?.picture);
+    setUri(await getImage({ path: 'profil', url: client?.picture }));
+  };
+
   const handleUpload = (isUploading: boolean) => {
     (async () => {
       const res = await Promise.all([getPermissionAsync(isUploading), isUploading ? uploadpicture() : takepicture()]);
       setUri(res[1].uri);
-      var user = firebase.auth().currentUser;
-      user?.updateProfile({  photoURL: res[1].uri });
+      updatePicture({ path: 'profil/' + res[1].uri.split('/')[res[1].uri.split('/').length - 1], url: res[1].uri });
+
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     })().catch((error) => {
       console.log(error);
@@ -133,6 +137,9 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
     );
   };
 
+  useEffect(() => {
+    getPicture();
+  }, []);
   return (    
     <TouchableOpacity style={profilStyles.profilContainer} onPress={() => {setOpenProfil(false);}} activeOpacity={0.8}>
       <View style={profilStyles.backGroundIllus}></View>

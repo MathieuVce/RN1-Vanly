@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity, Text, Dimensions, ActivityIndicator } from 'react-native';
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
@@ -13,6 +13,7 @@ import { VanPointFilter } from './VanPointFilter';
 import { ViewItem } from './ViewItem';
 import { mapStyle } from '../@types/IMap';
 import { Profil } from './Profil';
+import { ClientContext } from '../contexts/ClientContext';
 
 type IMapProps = AppModelNavConnectedProps<'Map'>;
 
@@ -94,6 +95,7 @@ const mainStyles = StyleSheet.create({
 });
 
 export const Map: React.FC<IMapProps> = ({ }) => {
+  const { getImage } = useContext(ClientContext);
 
   const [openFilters, setOpenFilters] = useState(false);
   const [openProfil, setOpenProfil] = useState(false);
@@ -103,6 +105,7 @@ export const Map: React.FC<IMapProps> = ({ }) => {
   const [test, setTest] = useState<Array<any>>();
   const [fieldValue] = useState({ 'pointOfView': true, 'waterPoint': true, 'gazStation': true });
   const [item, setItem] = useState<any>();
+  const [image, setImage] = useState<string>();
   const [createNewPoint, setCreateNewPoint] = useState({ 'latitude': 0, 'longitude': 0 });
   const [openNewPoint, setOpenNewPoint] = useState(false);
   const [mapRef, setMapRef] = useState<MapView | null>();
@@ -162,7 +165,12 @@ export const Map: React.FC<IMapProps> = ({ }) => {
         >
           { test?.map((doc, k) => {
             return (
-              <Marker key={k} coordinate={{ latitude : doc.coords.latitude, longitude : doc.coords.longitude }} onPress={() => {setOpenView(true); setItem(doc); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }}>
+              <Marker key={k} coordinate={{ latitude : doc.coords.latitude, longitude : doc.coords.longitude }} onPress={async () => {
+                setImage(await getImage({ path: 'images', url: doc.image }));
+                setItem(doc);
+                await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); 
+                setOpenView(true);
+              }}>
                 {doc.type == 'pointOfView' ? 
                   <Image style={{ width: iconSize.width, height: iconSize.height }} source={require('../assets/view.png')}/>
                   : doc.type == 'waterPoint' ?
@@ -173,8 +181,8 @@ export const Map: React.FC<IMapProps> = ({ }) => {
                       <Text></Text>
                 }
               </Marker>
-              );
-            })
+            );
+          })
           }
       </MapView>
   
@@ -213,10 +221,10 @@ export const Map: React.FC<IMapProps> = ({ }) => {
       </ModalE>
 
       <ModalE  isOpen={openView}  setIsOpen={setOpenView} height={16 * 15} close={() => {}}>
-        <ViewItem item={item} setSites={setSites}/>
+        <ViewItem item={item} setSites={setSites} image={image}/>
       </ModalE>
 
-      <ModalE isOpen={openNewPoint} setIsOpen={setOpenNewPoint} height={16 * 3} close={() => { setIndex(0); setValues({ 'name': '', 'description': '', uri: '' }); }}>
+      <ModalE isOpen={openNewPoint} setIsOpen={setOpenNewPoint} height={16 * 3} close={() => { setIndex(0); setValues({ 'name': '', 'description': '', uri: undefined }); }}>
           { index == 0 ?
             <VanPoint setIndex={setIndex} setValues={setValues} values={values}/>  
             : index == 1 ?

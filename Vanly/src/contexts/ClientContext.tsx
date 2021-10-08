@@ -5,7 +5,7 @@ import * as Haptics from 'expo-haptics';
 
 import firebase from '../database/firebase';
 import { IAuth, IClient, IReset } from '../@types/IClient';
-import { defaultClientValue, IClientContext, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TTakePictureFC, TUploadPictureFC } from '../@types/IClientContext';
+import { defaultClientValue, IClientContext, TGetImageFC, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TSetImageFC, TTakePictureFC, TUpdatePictureFC, TUploadPictureFC } from '../@types/IClientContext';
 import { AlertContext } from './AlertContext';
 
 
@@ -133,6 +133,38 @@ export const ClientProvider: React.FC = ({ children }) => {
     return result;
   };
 
+  const updatePicture: TUpdatePictureFC = async (payload: { path: string, url: string; }) => {
+    var tmpUser = firebase.auth().currentUser;
+    tmpUser?.updateProfile({  photoURL: payload.path.split('/')[1] });
+
+    const ref = firebase
+      .storage()
+      .ref()
+      .child(payload.path);
+
+    const blob = await (await fetch(payload.url)).blob();
+    await ref.put(blob);
+  };
+
+  const setImage: TSetImageFC = async (payload: { path: string, url: string; }) => {
+    const ref = firebase
+      .storage()
+      .ref()
+      .child(payload.path);
+
+    const blob = await (await fetch(payload.url)).blob();
+    await ref.put(blob);
+  };
+
+  const getImage: TGetImageFC = async (payload: { path: string, url?: string; }) => {
+    var url = '';
+
+    const img = firebase.storage().ref().child(payload.path).child(payload.url!);
+    await img.getDownloadURL().then((uri) => { url = uri; });
+
+    return url;
+  };
+
   const resetpassword: TResetPasswordFC = async (payload: IReset) => {
     await firebase
       .auth()
@@ -156,7 +188,7 @@ export const ClientProvider: React.FC = ({ children }) => {
       client: user,
       
       autolog, login, register, logout, resetpassword,
-      uploadpicture, takepicture,
+      uploadpicture, takepicture, updatePicture, getImage, setImage,
       getUser,
     }}
     >

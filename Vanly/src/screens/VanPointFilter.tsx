@@ -84,7 +84,7 @@ const newPointFilterStyles = StyleSheet.create({
 
 export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, values, createNewPoint, setOpenNewPoint, setTest, setSites, setValues }) => {
 
-  const { client } = useContext(ClientContext);
+  const { client, setImage } = useContext(ClientContext);
   const [fieldValue] = useState({ 'pointOfView': false, 'waterPoint': false, 'gazStation': false });
 
   const disable = () => {
@@ -144,12 +144,14 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, value
               await pipes.doc(values.name).set({
                 creator: client?.firstname,
                 description: values.description,
-                image: values.uri,
+                image: values.uri.split('/')[values.uri.split('/').length - 1],
                 likes: 0,
                 name: values.name,
                 type: fieldValue.pointOfView ? 'pointOfView' : fieldValue.waterPoint ? 'waterPoint' : 'gazStation',
                 coords: createNewPoint,
               });
+
+              setImage({ path: 'images/' + values.uri.split('/')[values.uri.split('/').length - 1], url: values.uri });
               setIndex(3);
               
               setSites(await firebase.firestore().collection('Sites').get());

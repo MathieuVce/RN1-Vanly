@@ -68,12 +68,10 @@ interface IItemProps {
 
 export const Item: React.FC<IItemProps> = ({ name, icon, onPress, isSelected, color, description }) => {
 
-  // const [selected, setSelected] = useState(isSelected);
-
   const activateFilter = (event: GestureResponderEvent) => {
     onPress(event);
-    // setSelected(!selected);
   };
+
   return (
   <TouchableOpacity style={filtersStyles.filtersLine} activeOpacity={0.6} onPress={activateFilter}>
     <View style={{ ...filtersStyles.navigation, backgroundColor: color.bg }}>

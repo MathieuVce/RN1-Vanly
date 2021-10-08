@@ -114,9 +114,8 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
       
       console.log(res[1].uri);
 
-      const blob = await (await fetch(res[1].uri)).blob();
       setUri(res[1].uri);
-      setValues({ ...values, uri: blob });
+      setValues({ ...values, uri: res[1].uri });
     })().catch((error) => {
       console.log(error);
     }); 
