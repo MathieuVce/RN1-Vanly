@@ -148,7 +148,7 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
         <Text style={profilStyles.nameText}>{client?.firstname}</Text>
         <Text style={profilStyles.emailText}>{client?.email}</Text>
       </View>
-      <TouchableOpacity  style={profilStyles.logout} onPress={() => {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); logout();}} activeOpacity={0.6}>
+      <TouchableOpacity  style={profilStyles.logout} onPress={() => {logout();}} activeOpacity={0.6}>
         <MaterialIcons name="logout" size={24} color="#525566"/>
       </TouchableOpacity>
     </TouchableOpacity>

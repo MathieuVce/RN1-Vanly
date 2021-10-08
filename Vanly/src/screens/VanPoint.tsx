@@ -111,8 +111,12 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
   const handleUpload = (isUploading: boolean) => {
     (async () => {
       const res = await Promise.all([getPermissionAsync(isUploading), isUploading ? uploadpicture() : takepicture()]);
+      
+      console.log(res[1].uri);
+
+      const blob = await (await fetch(res[1].uri)).blob();
       setUri(res[1].uri);
-      setValues({ ...values, uri: res[1].uri });
+      setValues({ ...values, uri: blob });
     })().catch((error) => {
       console.log(error);
     }); 

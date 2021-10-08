@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState } from 'react';
+import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Haptics from 'expo-haptics';
 
 import firebase from '../database/firebase';
 import { IAuth, IClient, IReset } from '../@types/IClient';
 import { defaultClientValue, IClientContext, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TTakePictureFC, TUploadPictureFC } from '../@types/IClientContext';
 import { AlertContext } from './AlertContext';
-import * as ImagePicker from 'expo-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export const ClientContext = createContext<IClientContext>(defaultClientValue);
@@ -36,11 +37,13 @@ export const ClientProvider: React.FC = ({ children }) => {
             title: 'Successful authentication',
             message: `Welcome back ${tmpuser?.displayName} !`,
           });
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         } else {
           Alerts.success({
             title: 'Successful authentication',
             message: 'Welcome back !',
           });
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
       })
       .catch(error => {
@@ -91,6 +94,7 @@ export const ClientProvider: React.FC = ({ children }) => {
       .then(async () => {
         setUser(null);
         await AsyncStorage.removeItem('user');
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
         Alerts.success({
           title: 'See you soon !',
           message: '',
@@ -126,11 +130,7 @@ export const ClientProvider: React.FC = ({ children }) => {
       quality: 1,
     });
 
-    if (result.cancelled) {
-
-    }
     return result;
-
   };
 
   const resetpassword: TResetPasswordFC = async (payload: IReset) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity, Text, Dimensions, ActivityIndicator } from 'react-native';
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
@@ -105,8 +105,8 @@ export const Map: React.FC<IMapProps> = ({ }) => {
   const [item, setItem] = useState<any>();
   const [createNewPoint, setCreateNewPoint] = useState({ 'latitude': 0, 'longitude': 0 });
   const [openNewPoint, setOpenNewPoint] = useState(false);
-  var mapRef = useRef<MapView>();
-  const [values, setValues] = useState({ 'name': '', 'description': '', uri: '' });
+  const [mapRef, setMapRef] = useState<MapView | null>();
+  const [values, setValues] = useState({ 'name': '', 'description': '', uri: undefined });
   const [iconSize, setIconSize] = useState({ 'width': 42, 'height': 50 });
 
   const getSites = async () => {
@@ -133,8 +133,7 @@ export const Map: React.FC<IMapProps> = ({ }) => {
     if (mapRef) {
       try {
         const camera = await mapRef.getCamera();
-        console.log(camera.zoom);
-        setIconSize({ 'width': camera.zoom * 4, 'height': camera.zoom * 4.8 });
+        setIconSize({ 'width': camera.zoom * 3.2, 'height': camera.zoom * 3.8 });
       } catch (err) {
         console.error(err);
       }
@@ -148,35 +147,35 @@ export const Map: React.FC<IMapProps> = ({ }) => {
   return (
     <View style={mainStyles.container}>
       <MapView style={mainStyles.map}
-          ref={(ref) => mapRef = ref}
-          provider={PROVIDER_GOOGLE}
-          initialRegion={{
-            latitude: 43.1030272,
-            longitude: 3.0867456,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-          showsUserLocation={true}
-          customMapStyle={mapStyle}
-          onLongPress={(e) => { setCreateNewPoint(e.nativeEvent.coordinate); setOpenNewPoint(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }}
-          onRegionChange={onMapChange}
-          >
-            { test?.map((doc, k) => {
-              return (
-                <Marker key={k} coordinate={{ latitude : doc.coords.latitude, longitude : doc.coords.longitude }} onPress={() => {setOpenView(true); setItem(doc); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }}>
-                  {doc.type == 'pointOfView' ? 
-                    <Image style={{ width: iconSize.width, height: iconSize.height }} source={require('../assets/view.png')}/>
-                    : doc.type == 'waterPoint' ?
-                    <Image style={{ width: iconSize.width, height: iconSize.height }} source={require('../assets/water.png')}/>
-                      : doc.type == 'gazStation' ?
-                      <Image style={{ width: iconSize.width, height: iconSize.height }} source={require('../assets/gaz.png')}/>
-                        :
-                        <Text></Text>
-                  }
-                </Marker>
+        ref={(ref) => {setMapRef(ref);}}
+        provider={PROVIDER_GOOGLE}
+        initialRegion={{
+          latitude: 43.1030272,
+          longitude: 3.0867456,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+        showsUserLocation={true}
+        customMapStyle={mapStyle}
+        onLongPress={(e) => { setCreateNewPoint(e.nativeEvent.coordinate); setOpenNewPoint(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }}
+        onRegionChange={onMapChange}
+        >
+          { test?.map((doc, k) => {
+            return (
+              <Marker key={k} coordinate={{ latitude : doc.coords.latitude, longitude : doc.coords.longitude }} onPress={() => {setOpenView(true); setItem(doc); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }}>
+                {doc.type == 'pointOfView' ? 
+                  <Image style={{ width: iconSize.width, height: iconSize.height }} source={require('../assets/view.png')}/>
+                  : doc.type == 'waterPoint' ?
+                  <Image style={{ width: iconSize.width, height: iconSize.height }} source={require('../assets/water.png')}/>
+                    : doc.type == 'gazStation' ?
+                    <Image style={{ width: iconSize.width, height: iconSize.height }} source={require('../assets/gaz.png')}/>
+                      :
+                      <Text></Text>
+                }
+              </Marker>
               );
             })
-            }
+          }
       </MapView>
   
       <View style={mainStyles.header}>
@@ -188,6 +187,19 @@ export const Map: React.FC<IMapProps> = ({ }) => {
         </TouchableOpacity>
       </View>
       
+      {
+        openFilters ?
+          <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', position: 'absolute', width: '100%', height: '100%' }}>
+          </View>
+          : openNewPoint ?
+            <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', position: 'absolute', width: '100%', height: '100%' }}>
+            </View>
+            : openView  ?
+              <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', position: 'absolute', width: '100%', height: '100%' }}>
+              </View>
+              : <View></View>
+      }
+
       <ModalE  isOpen={openFilters}  setIsOpen={setOpenFilters} height={16 * 27} close={() => {}}>
         <View style={mainStyles.filtersView}>
           <Item name='Point of View' icon={ { name: 'map-marker', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.pointOfView = !fieldValue.pointOfView; filterItems();Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }} isSelected={fieldValue.pointOfView} color={{ icon: '#FEC156', bg: '#FFEECF' }}/>
