@@ -3,6 +3,7 @@ import { StyleSheet, View, Image, TouchableOpacity, Text, Dimensions, ActivityIn
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Haptics from 'expo-haptics';
+import * as Location from 'expo-location';
 
 import firebase from '../database/firebase';
 import { ModalE } from '../components/Modal';
@@ -11,7 +12,7 @@ import { Item } from '../components/Filters';
 import { VanPoint } from './VanPoint';
 import { VanPointFilter } from './VanPointFilter';
 import { ViewItem } from './ViewItem';
-import { mapStyle } from '../@types/IMap';
+import { IRegion, mapStyle } from '../@types/IMap';
 import { Profil } from './Profil';
 import { ClientContext } from '../contexts/ClientContext';
 
@@ -52,6 +53,12 @@ const mainStyles = StyleSheet.create({
     elevation: 24,
     justifyContent : 'center',
     alignItems : 'center',
+  },
+  modal: {
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
   },
   filtersView: {
     paddingHorizontal: 16 * 2,
@@ -95,31 +102,42 @@ const mainStyles = StyleSheet.create({
 });
 
 export const Map: React.FC<IMapProps> = ({ }) => {
-  const { getImage } = useContext(ClientContext);
+  const { getImage, getItems } = useContext(ClientContext);
 
   const [openFilters, setOpenFilters] = useState(false);
   const [openProfil, setOpenProfil] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [index, setIndex] = useState(0);
   const [sites, setSites] = useState<firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>>();
-  const [test, setTest] = useState<Array<any>>();
+  const [tmpSites, setTmpSites] = useState<Array<any>>();
   const [fieldValue] = useState({ 'pointOfView': true, 'waterPoint': true, 'gazStation': true });
   const [item, setItem] = useState<any>();
   const [image, setImage] = useState<string>();
   const [createNewPoint, setCreateNewPoint] = useState({ 'latitude': 0, 'longitude': 0 });
   const [openNewPoint, setOpenNewPoint] = useState(false);
   const [mapRef, setMapRef] = useState<MapView | null>();
+  const [region, setRegion] = useState<IRegion>({ latitude: 0, longitude: 0, latitudeDelta: 0, longitudeDelta: 0 });
   const [values, setValues] = useState({ 'name': '', 'description': '', uri: undefined });
   const [iconSize, setIconSize] = useState({ 'width': 42, 'height': 50 });
 
   const getSites = async () => {
-    setSites(await firebase.firestore().collection('Sites').get());
-    setTest((await firebase.firestore().collection('Sites').get()).docs.map(doc => doc.data()));
-    setItem(test ? test[0] : null);
+    setSites(await getItems());
+    setTmpSites((await getItems()).docs.map((doc: { data: () => any; }) => doc.data()));
+    setItem(tmpSites ? tmpSites[0] : null);
+  };
+
+  const getPosition = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      return;
+    }
+
+    const position = await Location.getCurrentPositionAsync({});
+    setRegion({ ...region, latitude: position.coords.latitude, longitude: position.coords.longitude });
   };
 
   const filterItems = async () => {
-    setTest(sites?.docs.map((doc) => {
+    setTmpSites(sites?.docs.map((doc) => {
       if (fieldValue.pointOfView && doc.data().type == 'pointOfView')
         return doc.data();
       if (fieldValue.waterPoint && doc.data().type == 'waterPoint')
@@ -141,9 +159,11 @@ export const Map: React.FC<IMapProps> = ({ }) => {
         console.error(err);
       }
     }
+    await getSites();
   };
 
   useEffect(() => {
+    getPosition();
     getSites();
   }, []);
 
@@ -152,18 +172,14 @@ export const Map: React.FC<IMapProps> = ({ }) => {
       <MapView style={mainStyles.map}
         ref={(ref) => {setMapRef(ref);}}
         provider={PROVIDER_GOOGLE}
-        initialRegion={{
-          latitude: 43.1030272,
-          longitude: 3.0867456,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
+        initialRegion={region}
         showsUserLocation={true}
         customMapStyle={mapStyle}
         onLongPress={(e) => { setCreateNewPoint(e.nativeEvent.coordinate); setOpenNewPoint(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }}
         onRegionChange={onMapChange}
+        maxZoomLevel={15}
         >
-          { test?.map((doc, k) => {
+          { tmpSites?.map((doc, k) => {
             return (
               <Marker key={k} coordinate={{ latitude : doc.coords.latitude, longitude : doc.coords.longitude }} onPress={async () => {
                 setImage(await getImage({ path: 'images', url: doc.image }));
@@ -197,13 +213,13 @@ export const Map: React.FC<IMapProps> = ({ }) => {
       
       {
         openFilters ?
-          <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', position: 'absolute', width: '100%', height: '100%' }}>
+          <View style={mainStyles.modal}>
           </View>
           : openNewPoint ?
-            <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', position: 'absolute', width: '100%', height: '100%' }}>
+            <View style={mainStyles.modal}>
             </View>
             : openView  ?
-              <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', position: 'absolute', width: '100%', height: '100%' }}>
+              <View style={mainStyles.modal}>
               </View>
               : <View></View>
       }
@@ -221,14 +237,14 @@ export const Map: React.FC<IMapProps> = ({ }) => {
       </ModalE>
 
       <ModalE  isOpen={openView}  setIsOpen={setOpenView} height={16 * 15} close={() => {}}>
-        <ViewItem item={item} setSites={setSites} image={image}/>
+        <ViewItem item={item} setSites={setSites} image={image} setTmpSites={setTmpSites} setItem={setItem} />
       </ModalE>
 
       <ModalE isOpen={openNewPoint} setIsOpen={setOpenNewPoint} height={16 * 3} close={() => { setIndex(0); setValues({ 'name': '', 'description': '', uri: undefined }); }}>
           { index == 0 ?
             <VanPoint setIndex={setIndex} setValues={setValues} values={values}/>  
             : index == 1 ?
-              <VanPointFilter setIndex={setIndex} createNewPoint={createNewPoint} values={values} setOpenNewPoint={setOpenNewPoint} setTest={setTest} setSites={setSites} setValues={setValues}/>
+              <VanPointFilter setIndex={setIndex} createNewPoint={createNewPoint} values={values} setOpenNewPoint={setOpenNewPoint} setTmpSites={setTmpSites} setSites={setSites} setValues={setValues}/>
               : index == 2 ?
                 <View style={mainStyles.center}>
                   <ActivityIndicator size={'large'} color='#99D3A6'></ActivityIndicator>

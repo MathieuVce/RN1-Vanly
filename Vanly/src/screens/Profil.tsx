@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ActionSheetIOS, StyleSheet, TouchableOpacity, View, Image, Text } from 'react-native';
+import { ActionSheetIOS, StyleSheet, TouchableOpacity, View, Image, Text, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -24,6 +24,9 @@ const profilStyles = StyleSheet.create({
     backgroundColor : '#99D3A6',
     borderRadius : 280,
     position: 'absolute',
+  },
+  loading: {
+    marginTop: 16 * 9,
   },
   profilPicture : {
     height : 150,
@@ -95,7 +98,8 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
 
   const { uploadpicture, takepicture, client, logout, updatePicture, getImage } = useContext(ClientContext);
 
-  const [uri, setUri] = useState(null);
+  const [uri, setUri] = useState('nonull');
+  const [loading, setLoading] = useState(true);
 
   const getPermissionAsync = async (roll: boolean) => {
 
@@ -107,7 +111,6 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
   };
 
   const getPicture = async () => {
-    console.log(client?.picture);
     setUri(await getImage({ path: 'profil', url: client?.picture }));
   };
 
@@ -140,16 +143,19 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
   useEffect(() => {
     getPicture();
   }, []);
+
   return (    
     <TouchableOpacity style={profilStyles.profilContainer} onPress={() => {setOpenProfil(false);}} activeOpacity={0.8}>
       <View style={profilStyles.backGroundIllus}></View>
       <TouchableOpacity style={profilStyles.profilPicture} onPress={addPicture}>
-          {!uri ? (
-            <MaterialIcons name="add-a-photo" size={24} color="darkgrey" />
-          ) : (
-            <Image  style={profilStyles.picture} source={{ uri }}/>
-          )
+        { loading &&
+          <ActivityIndicator style={profilStyles.loading} size={'large'} color='grey'></ActivityIndicator>
         }
+        {!uri ? (
+          <MaterialIcons name="add-a-photo" size={24} color="darkgrey" />
+        ) : (
+          <Image style={profilStyles.picture} source={{ uri }} onLoadStart={() => {setLoading(true); }} onLoadEnd={() => {setLoading(false); }}/>
+        )}
       </TouchableOpacity>
       <View style={profilStyles.nameContainer}>
         <Text style={profilStyles.nameText}>{client?.firstname}</Text>

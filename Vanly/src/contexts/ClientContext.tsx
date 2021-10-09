@@ -5,7 +5,7 @@ import * as Haptics from 'expo-haptics';
 
 import firebase from '../database/firebase';
 import { IAuth, IClient, IReset } from '../@types/IClient';
-import { defaultClientValue, IClientContext, TGetImageFC, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TSetImageFC, TTakePictureFC, TUpdatePictureFC, TUploadPictureFC } from '../@types/IClientContext';
+import { defaultClientValue, IClientContext, TGetImageFC, TGetItemsFC, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TSetImageFC, TSetItemsFC, TSleepFC, TTakePictureFC, TUpdatePictureFC, TUploadPictureFC } from '../@types/IClientContext';
 import { AlertContext } from './AlertContext';
 
 
@@ -50,7 +50,6 @@ export const ClientProvider: React.FC = ({ children }) => {
         Alerts.warning({
           title: error.message,
           message: '',
-          duration: 8000,
         });
       });
   };
@@ -165,6 +164,15 @@ export const ClientProvider: React.FC = ({ children }) => {
     return url;
   };
 
+  const getItems: TGetItemsFC = async () => {
+    const items = await firebase.firestore().collection('Sites').get();
+    return items;
+  };
+
+  const setItems: TSetItemsFC = async () => {
+    return firebase.firestore().collection('Sites');
+  };
+
   const resetpassword: TResetPasswordFC = async (payload: IReset) => {
     await firebase
       .auth()
@@ -183,13 +191,19 @@ export const ClientProvider: React.FC = ({ children }) => {
       });
   };
 
+  const sleep: TSleepFC = async (ms: number) => {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  };
+
   return (
     <ClientContext.Provider value={{
       client: user,
-      
+      sleep,
       autolog, login, register, logout, resetpassword,
       uploadpicture, takepicture, updatePicture, getImage, setImage,
-      getUser,
+      getUser, getItems, setItems,
     }}
     >
       {children}

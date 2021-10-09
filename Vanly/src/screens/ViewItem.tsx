@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, Dimensions, Linking, Platform } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, Dimensions, Linking, Platform, ActivityIndicator } from 'react-native';
 import { AntDesign, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 
-import firebase from '../database/firebase';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { ClientContext } from '../contexts/ClientContext';
 
 interface IViewItemProps {
   item: any
   setSites: React.Dispatch<React.SetStateAction<any>>
+  setTmpSites: React.Dispatch<React.SetStateAction<any>>
+  setItem: React.Dispatch<React.SetStateAction<any>>
   image: any
 }
 
@@ -19,6 +21,12 @@ const itemStyles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 16,
     marginHorizontal: 16,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
   },
   head: {
     flexDirection: 'row',
@@ -88,30 +96,36 @@ const itemStyles = StyleSheet.create({
   },
 });
 
-export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites, image }) => {
+export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites, image, setTmpSites, setItem }) => {
 
+  const { getItems, setItems, client } = useContext(ClientContext);
   const [like, setLike] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const addLike = async () => {
-    const pipes = firebase.firestore().collection('Sites');
+    const items = await setItems();
 
-    await pipes.doc(item.name).set({
+    await items.doc(item.name).set({
       ...item,
-      likes: item.likes + 1,
+      likes: { likes: item.likes.likes + 1, names: item.likes.names.concat([client?.firstname]) },
     });
 
-    setSites(await firebase.firestore().collection('Sites').get());
+    setItem({ ...item, likes: { likes: item.likes.likes + 1, names: item.likes.names.concat([client?.firstname]) } });
+    setSites(await getItems());
+    setTmpSites((await getItems()).docs.map((doc: { data: () => any; }) => doc.data()));
   };
 
   const removeLike = async () => {
-    const pipes = firebase.firestore().collection('Sites');
+    const items = await setItems();
 
-    await pipes.doc(item.name).set({
+    await items.doc(item.name).set({
       ...item,
-      likes: item.likes - 1,
+      likes: { likes: item.likes.likes - 1, names: item.likes.names.filter((elem: string) => elem !== client?.firstname ) },
     });
 
-    setSites(await firebase.firestore().collection('Sites').get());
+    setItem({ ...item, likes: { likes: item.likes.likes - 1, names: item.likes.names.filter((elem: string) => elem !== client?.firstname) } });
+    setSites(await getItems());
+    setTmpSites((await getItems()).docs.map((doc: { data: () => any; }) => doc.data()));
   };
 
   const openGps = (lat: number, lng: number, name: string) => {
@@ -131,8 +145,21 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites, image }) =>
     });
   };
 
+  useEffect(() => {
+    if (item.likes.names.indexOf(client?.firstname) > -1) {
+      setLike(true);
+    }
+  }, []);
+
+
   return (
     <View style={itemStyles.container}>
+      {
+        loading && (
+          <View style={itemStyles.center}>
+            <ActivityIndicator size={'large'} color={item.type == 'pointOfView' ? '#FEC156' : item.type == 'waterPoint' ? '#768AF8' : item.type == 'gazStation' ? '#B98888' : undefined}></ActivityIndicator>
+          </View>
+        )}
       <View style={itemStyles.head}>
         {
           item.type == 'pointOfView' ?
@@ -156,7 +183,7 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites, image }) =>
         </TouchableOpacity>
       </View>
       <TouchableOpacity style={itemStyles.touchImage} onPress={() => {}}>
-        <Image style={itemStyles.image} source={{ uri : image }}/>
+        <Image style={itemStyles.image} source={{ uri : image }} onLoadStart={() => {setLoading(true); }} onLoadEnd={() => {setLoading(false); }}/>
       </TouchableOpacity>
       <Text style={{ ...itemStyles.description, paddingHorizontal: 16, marginBottom: 16 }}>{item?.description}</Text>
       <View style={itemStyles.creator}>
@@ -165,11 +192,11 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites, image }) =>
       </View>
       <View style={itemStyles.creator}>
         { like ? 
-          <AntDesign name='like1' size={27} color={item.type == 'pointOfView' ? '#FEC156' : item.type == 'waterPoint' ? '#768AF8' : item.type == 'gazStation' ? '#B98888' : undefined} style={itemStyles.likeic} onPress={() => {setLike(!like); addLike(); }}/>
+          <AntDesign name='like1' size={27} color={item.type == 'pointOfView' ? '#FEC156' : item.type == 'waterPoint' ? '#768AF8' : item.type == 'gazStation' ? '#B98888' : undefined} style={itemStyles.likeic} onPress={() => {setLike(!like); removeLike(); }}/>
           :
-          <AntDesign name='like2' size={27} color='lightgrey' style={itemStyles.likeic} onPress={() => {setLike(!like); removeLike(); }}/>
+          <AntDesign name='like2' size={27} color='lightgrey' style={itemStyles.likeic} onPress={() => {setLike(!like); addLike(); }}/>
         }
-        <Text style={{ ...itemStyles.like, color: item.type == 'pointOfView' ? '#FEC156' : item.type == 'waterPoint' ? '#768AF8' : item.type == 'gazStation' ? '#B98888' : undefined }}>{item?.likes}</Text>
+        <Text style={{ ...itemStyles.like, color: item.type == 'pointOfView' ? '#FEC156' : item.type == 'waterPoint' ? '#768AF8' : item.type == 'gazStation' ? '#B98888' : undefined }}>{item?.likes.likes}</Text>
       </View>
     </View>
   );

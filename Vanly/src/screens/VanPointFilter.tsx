@@ -1,4 +1,3 @@
-import firebase from '../database/firebase';
 import React, { useContext, useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import * as Haptics from 'expo-haptics';
@@ -11,7 +10,7 @@ interface IVanPointFilterProps {
   values: any
   createNewPoint: { 'latitude': number, 'longitude': number }
   setOpenNewPoint: React.Dispatch<React.SetStateAction<boolean>>
-  setTest: React.Dispatch<React.SetStateAction<any>>
+  setTmpSites: React.Dispatch<React.SetStateAction<any>>
   setSites: React.Dispatch<React.SetStateAction<any>>
   setValues:  React.Dispatch<React.SetStateAction<any>>
 }
@@ -82,9 +81,9 @@ const newPointFilterStyles = StyleSheet.create({
   },
 });
 
-export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, values, createNewPoint, setOpenNewPoint, setTest, setSites, setValues }) => {
+export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, values, createNewPoint, setOpenNewPoint, setTmpSites, setSites, setValues }) => {
 
-  const { client, setImage } = useContext(ClientContext);
+  const { client, setImage, sleep, getItems, setItems } = useContext(ClientContext);
   const [fieldValue] = useState({ 'pointOfView': false, 'waterPoint': false, 'gazStation': false });
 
   const disable = () => {
@@ -92,12 +91,6 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, value
     if (!fieldValue.pointOfView && !fieldValue.waterPoint && !fieldValue.gazStation)
       return true;
     return false;
-  };
-
-  const sleep = (ms: number) => {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    });
   };
 
   return (
@@ -116,7 +109,7 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, value
             fieldValue.pointOfView = false;
             fieldValue.gazStation = false;
           }} isSelected={fieldValue.waterPoint} color={{ icon: '#768AF8', bg: '#DAE0FF' }}
-          description='Glouglouglou, tap water free everywhere'
+          description='Glouglouglou, tap water everywhere'
           />
           <Item name='Gaz Station' icon={ { name: 'car', type: 'FontAwesome5' }} onPress={() => {
             fieldValue.gazStation = !fieldValue.gazStation;
@@ -139,13 +132,13 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, value
             style={newPointFilterStyles.button_right}
             onPress={async () => {
               setIndex(2);
-              const pipes = firebase.firestore().collection('Sites');
+              const items = await setItems();
 
-              await pipes.doc(values.name).set({
+              await items.doc(values.name).set({
                 creator: client?.firstname,
                 description: values.description,
                 image: values.uri.split('/')[values.uri.split('/').length - 1],
-                likes: 0,
+                likes: { likes: 0, names: [] },
                 name: values.name,
                 type: fieldValue.pointOfView ? 'pointOfView' : fieldValue.waterPoint ? 'waterPoint' : 'gazStation',
                 coords: createNewPoint,
@@ -154,8 +147,8 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, value
               setImage({ path: 'images/' + values.uri.split('/')[values.uri.split('/').length - 1], url: values.uri });
               setIndex(3);
               
-              setSites(await firebase.firestore().collection('Sites').get());
-              setTest((await firebase.firestore().collection('Sites').get()).docs.map(doc => doc.data()));
+              setSites(await getItems());
+              setTmpSites((await getItems()).docs.map((doc: { data: () => any; }) => doc.data()));
 
               await sleep(1300);
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

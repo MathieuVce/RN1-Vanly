@@ -112,10 +112,9 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
     (async () => {
       const res = await Promise.all([getPermissionAsync(isUploading), isUploading ? uploadpicture() : takepicture()]);
       
-      console.log(res[1].uri);
-
       setUri(res[1].uri);
       setValues({ ...values, uri: res[1].uri });
+
     })().catch((error) => {
       console.log(error);
     }); 
