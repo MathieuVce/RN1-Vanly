@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export const Register: React.FC<IRegisterProps> = ({}) => {
+export const Register: React.FC<IRegisterProps> = ({ navigation }) => {
   return (
     <ImageBackground
       source={require('../../assets/Login.png')}
@@ -29,7 +29,7 @@ export const Register: React.FC<IRegisterProps> = ({}) => {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{ flex: 1 }}
         >
-          <RegisterSwiper />
+          <RegisterSwiper navigation={navigation}/>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </ImageBackground>

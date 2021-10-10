@@ -96,10 +96,10 @@ const profilStyles = StyleSheet.create({
 
 export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
 
-  const { uploadpicture, takepicture, client, logout, updatePicture, getImage } = useContext(ClientContext);
+  const { uploadpicture, takepicture, client, logout, updatePicture, getImage, getUser } = useContext(ClientContext);
 
   const [uri, setUri] = useState('nonull');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const getPermissionAsync = async (roll: boolean) => {
 
@@ -111,7 +111,9 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
   };
 
   const getPicture = async () => {
-    setUri(await getImage({ path: 'profil', url: client?.picture }));
+    const tmpUser = await getUser();
+    if (tmpUser.photoURL !== 'nonull')
+      setUri(await getImage({ path: 'profil', url: tmpUser.photoURL }));
   };
 
   const handleUpload = (isUploading: boolean) => {
@@ -134,7 +136,7 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
         cancelButtonIndex: 0,
       },
       buttonIndex => { 
-        if (buttonIndex === 0) {return; }
+        if (buttonIndex === 0) {return;}
         handleUpload(buttonIndex === 1); 
       },
     );
@@ -147,11 +149,11 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
   return (    
     <TouchableOpacity style={profilStyles.profilContainer} onPress={() => {setOpenProfil(false);}} activeOpacity={0.8}>
       <View style={profilStyles.backGroundIllus}></View>
-      <TouchableOpacity style={profilStyles.profilPicture} onPress={addPicture}>
+      <TouchableOpacity style={profilStyles.profilPicture} onPress={addPicture} activeOpacity={0.6}>
         { loading &&
-          <ActivityIndicator style={profilStyles.loading} size={'large'} color='grey'></ActivityIndicator>
+          <ActivityIndicator style={profilStyles.loading} size={'large'} color='#525566'></ActivityIndicator>
         }
-        {!uri ? (
+        {uri == 'nonull' ? (
           <MaterialIcons name="add-a-photo" size={24} color="darkgrey" />
         ) : (
           <Image style={profilStyles.picture} source={{ uri }} onLoadStart={() => {setLoading(true); }} onLoadEnd={() => {setLoading(false); }}/>

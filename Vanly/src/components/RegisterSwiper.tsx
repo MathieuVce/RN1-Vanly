@@ -10,7 +10,9 @@ import {
 import { ClientContext } from '../contexts/ClientContext';
 import Swiper from 'react-native-swiper/src';
 
-interface IRegisterSwiperProps {}
+interface IRegisterSwiperProps {
+  navigation: any;
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -41,7 +43,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     justifyContent: 'space-between',
-    // alignItems: 'flex-end',
     marginBottom: 20,
     flexDirection: 'row',
     width: '100%',
@@ -123,15 +124,16 @@ const styles = StyleSheet.create({
   swiper: {},
 });
 
-export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
+export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({ navigation }) => {
   const { register } = useContext(ClientContext);
-  const [day, setDay] = useState(undefined);
-  const [month, setMonth] = useState(undefined);
-  const [year, setYear] = useState(undefined);
-  const [name, setName] = useState(undefined);
-  const [email, setEmail] = useState();
+  const [day, setDay] = useState('');
+  const [month, setMonth] = useState('');
+  const [year, setYear] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [step, setStep] = useState(0);
-  const [swiper, setSwiper] = useState();
+  const [swiper, setSwiper] = useState<any>();
 
   const emailRegex =
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -147,11 +149,10 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
       return false;
     } else if (step === 1 && day && month && year) {
       return false;
+    } else if (step === 2 && email && emailRegex.test(String(email).toLowerCase())) {
+      return false;
     } else if (
-      step === 2 &&
-      email &&
-      emailRegex.test(String(email).toLowerCase())
-    ) {
+      step === 3 && password ) {
       return false;
     }
     return true;
@@ -168,9 +169,10 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
     Keyboard.dismiss();
     await register({
       email: email.toLowerCase(),
-      password: day + month + year,
+      password,
+      name,
     });
-    alert('submit form');
+    navigation.navigate('Login');
   };
 
   const renderSlide1 = () => {
@@ -258,10 +260,28 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
     );
   };
 
+  const renderSlide4 = () => {
+    return (
+      <View style={styles.flex}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Choisis ton propre mot de passe !</Text>
+        </View>
+        <View style={styles.content}>
+          <TextInput
+            placeholder="*******"
+            onChangeText={setPassword}
+            style={styles.input}
+            secureTextEntry
+          />
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.flex}>
       <Swiper
-        ref={_swiper => setSwiper(_swiper)}
+        ref={(_swiper: any) => setSwiper(_swiper)}
         showsButtons={false}
         scrollEnabled={false}
         loop={false}
@@ -272,6 +292,7 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
         {renderSlide1()}
         {renderSlide2()}
         {renderSlide3()}
+        {renderSlide4()}
       </Swiper>
 
       <View style={styles.footer}>
@@ -288,7 +309,7 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({}) => {
 
         <TouchableOpacity
           style={styles.button_right}
-          onPress={step !== 2 ? onPressNext : onSubmit}
+          onPress={step !== 3 ? onPressNext : onSubmit}
           disabled={disableButton()}
         >
           <Text style={styles.text_button}>{'→'}</Text>

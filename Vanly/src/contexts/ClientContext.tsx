@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 
 import firebase from '../database/firebase';
-import { IAuth, IClient, IReset } from '../@types/IClient';
+import { IAuth, IClient, IPhoto, IRegisterClient, IReset } from '../@types/IClient';
 import { defaultClientValue, IClientContext, TGetImageFC, TGetItemsFC, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TSetImageFC, TSetItemsFC, TSleepFC, TTakePictureFC, TUpdatePictureFC, TUploadPictureFC } from '../@types/IClientContext';
 import { AlertContext } from './AlertContext';
 
@@ -24,15 +24,15 @@ export const ClientProvider: React.FC = ({ children }) => {
       : null;
   };
 
-  const login: TLoginFC = async payload => {
+  const login: TLoginFC = async (payload: IAuth) => {
     await firebase
       .auth()
       .signInWithEmailAndPassword(payload.email, payload.password)
       .then(async () => {
         const tmpuser = await getUser();
         if (tmpuser) {
-          setUser({ 'firstname': tmpuser.displayName, email: tmpuser.email, picture: tmpuser.photoURL });
-          await AsyncStorage.setItem('user', JSON.stringify({ email: payload.email, password: payload.password, firstname: tmpuser.displayName, picture: tmpuser.photoURL }));
+          setUser({ 'firstname': tmpuser.displayName, email: tmpuser.email, picture: tmpuser.photoURL ? tmpuser.photoURL : 'nonull' });
+          await AsyncStorage.setItem('user', JSON.stringify({ email: payload.email, password: payload.password, firstname: tmpuser.displayName, picture: tmpuser.photoURL ? tmpuser.photoURL : 'nonull' }));
           Alerts.success({
             title: 'Successful authentication',
             message: `Welcome back ${tmpuser?.displayName} !`,
@@ -63,18 +63,19 @@ export const ClientProvider: React.FC = ({ children }) => {
     }
   };
 
-  const register: TRegisterFC = async (payload: IAuth) => {
+  const register: TRegisterFC = async (payload: IRegisterClient) => {
     await firebase
       .auth()
       .createUserWithEmailAndPassword(payload.email, payload.password)
       .then(async () => {
         const tmpuser = await getUser();
         if (tmpuser) {
-          setUser({ firstname: tmpuser.displayName, email: tmpuser.email });
+          tmpuser.updateProfile({ displayName: payload.name });
           Alerts.success({
             title: 'Successful Registration',
-            message: 'Welcome back !',
+            message: '',
           });
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
       })
       .catch(error => {
@@ -132,7 +133,7 @@ export const ClientProvider: React.FC = ({ children }) => {
     return result;
   };
 
-  const updatePicture: TUpdatePictureFC = async (payload: { path: string, url: string; }) => {
+  const updatePicture: TUpdatePictureFC = async (payload: IPhoto) => {
     var tmpUser = firebase.auth().currentUser;
     tmpUser?.updateProfile({  photoURL: payload.path.split('/')[1] });
 
@@ -141,21 +142,21 @@ export const ClientProvider: React.FC = ({ children }) => {
       .ref()
       .child(payload.path);
 
-    const blob = await (await fetch(payload.url)).blob();
+    const blob = await (await fetch(payload.url!)).blob();
     await ref.put(blob);
   };
 
-  const setImage: TSetImageFC = async (payload: { path: string, url: string; }) => {
+  const setImage: TSetImageFC = async (payload: IPhoto) => {
     const ref = firebase
       .storage()
       .ref()
       .child(payload.path);
 
-    const blob = await (await fetch(payload.url)).blob();
+    const blob = await (await fetch(payload.url!)).blob();
     await ref.put(blob);
   };
 
-  const getImage: TGetImageFC = async (payload: { path: string, url?: string; }) => {
+  const getImage: TGetImageFC = async (payload: IPhoto) => {
     var url = '';
 
     const img = firebase.storage().ref().child(payload.path).child(payload.url!);

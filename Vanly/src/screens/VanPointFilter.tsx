@@ -33,7 +33,7 @@ const newPointFilterStyles = StyleSheet.create({
   },
   bottomContainer: {
     width: '180%',
-    height: '14%',
+    height: '4%',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -83,7 +83,7 @@ const newPointFilterStyles = StyleSheet.create({
 
 export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, values, createNewPoint, setOpenNewPoint, setTmpSites, setSites, setValues }) => {
 
-  const { client, setImage, sleep, getItems, setItems } = useContext(ClientContext);
+  const { client, setImage, getItems, setItems } = useContext(ClientContext);
   const [fieldValue] = useState({ 'pointOfView': false, 'waterPoint': false, 'gazStation': false });
 
   const disable = () => {
@@ -150,8 +150,17 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, value
               setSites(await getItems());
               setTmpSites((await getItems()).docs.map((doc: { data: () => any; }) => doc.data()));
 
-              await sleep(1300);
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              var start = new Date().getTime();
+              var end = new Date().getTime();
+              var time = end - start;
+              
+              while (time <= 3000) {
+               
+                end = new Date().getTime();
+                time = end - start;
+              }
+
+              await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               setOpenNewPoint(false);
               setIndex(0);
               setValues({ 'name': '', 'description': '', uri: '' });

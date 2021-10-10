@@ -1,4 +1,4 @@
-import { IAuth, IClient, IReset } from './IClient';
+import { IAuth, IClient, IPhoto, IRegisterClient, IReset } from './IClient';
 
 export interface IClientContext {
   client?: null | IClient;
@@ -28,11 +28,11 @@ export type TTakePictureFC = () => Promise<any>;
 export type TUploadPictureFC = () => Promise<any>;
 export type TSleepFC = (ms: number) => Promise<any>;
 export type TLoginFC = (payload: IAuth) => Promise<any>;
-export type TRegisterFC = (payload: IAuth) => Promise<any>;
+export type TRegisterFC = (payload: IRegisterClient) => Promise<any>;
 export type TResetPasswordFC = (payload: IReset) => Promise<any>;
-export type TSetImageFC = (payload: { path: string, url: string; }) => Promise<any>;
-export type TGetImageFC = (payload: { path: string, url?: string; }) => Promise<any>;
-export type TUpdatePictureFC = (payload: { path: string, url: string; }) => Promise<any>;
+export type TSetImageFC = (payload: IPhoto) => Promise<any>;
+export type TGetImageFC = (payload: IPhoto) => Promise<any>;
+export type TUpdatePictureFC = (payload: IPhoto) => Promise<any>;
 
 
 export const defaultClientValue: IClientContext = {

@@ -6,9 +6,9 @@ export interface IClient {
   birthdate?: IDate,
 }
 export interface IRegisterClient {
-  email?: string,
-  fullname?: string,
-  birthdate?: IDate,
+  email: string,
+  name: string,
+  password: string,
 }
 
 export interface IDate {
@@ -24,4 +24,9 @@ export interface IAuth {
 
 export interface IReset {
   email: string;
+}
+
+export interface IPhoto {
+  path: string,
+  url?: string;
 }

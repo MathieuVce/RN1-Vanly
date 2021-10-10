@@ -33,7 +33,7 @@ const itemStyles = StyleSheet.create({
     width: '90%',
     height: '30%',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   icon: {
     width: 16 * 3.3,
@@ -50,7 +50,7 @@ const itemStyles = StyleSheet.create({
     fontSize: 30,
     color: '#525566',
     fontWeight: 'bold',
-    paddingLeft: 16 * 2.5,
+    paddingLeft: 16 * 5,
   },
   image: {
     width: '100%',
