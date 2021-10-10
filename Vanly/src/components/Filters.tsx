@@ -13,12 +13,12 @@ const filtersStyles = StyleSheet.create({
   },
   dot: {
     backgroundColor: 'red',
-    width: 16 * 1.1,
-    height: 16 * 1.1,
+    width: 16 * 1.3,
+    height: 16 * 1.3,
     borderRadius: 20,
     position: 'absolute',
-    left: 16 * 2.4,
-    top: -5,
+    left: 16 * 2.2,
+    top: -4,
   },
   undot: {
     backgroundColor: 'white',
@@ -26,8 +26,8 @@ const filtersStyles = StyleSheet.create({
     height: 16 * 1.3,
     borderRadius: 20,
     position: 'absolute',
-    left: 16 * 2.4,
-    top: -5,
+    left: 16 * 2.2,
+    top: -4,
     borderWidth: 2,
   },
   filtersText: {
@@ -84,7 +84,7 @@ export const Item: React.FC<IItemProps> = ({ name, icon, onPress, isSelected, co
       {isSelected ? (
         <View style={filtersStyles.dot}></View>
       ) : (
-        <View style={{ ...filtersStyles.undot, borderColor: color.bg }}></View>
+        <View style={{ ...filtersStyles.undot, borderColor: color.icon }}></View>
       )}
     </View>
     <View>

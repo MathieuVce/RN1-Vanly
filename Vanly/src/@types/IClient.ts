@@ -9,6 +9,7 @@ export interface IRegisterClient {
   email: string,
   name: string,
   password: string,
+  birthdate: IDate,
 }
 
 export interface IDate {

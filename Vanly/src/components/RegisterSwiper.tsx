@@ -171,6 +171,7 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({ navigation }) =
       email: email.toLowerCase(),
       password,
       name,
+      birthdate: { day, month, year },
     });
     navigation.navigate('Login');
   };

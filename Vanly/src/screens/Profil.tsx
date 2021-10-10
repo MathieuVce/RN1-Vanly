@@ -24,6 +24,15 @@ const profilStyles = StyleSheet.create({
     backgroundColor : '#99D3A6',
     borderRadius : 280,
     position: 'absolute',
+  }, 
+  closeView: {
+    top: 16 * 3,
+    left: 16 * 2,
+    alignSelf: 'flex-start',
+  },
+  close: {
+    fontSize: 16,
+    color: '#525566',
   },
   loading: {
     marginTop: 16 * 9,
@@ -64,15 +73,19 @@ const profilStyles = StyleSheet.create({
     color: '#525566',
     fontSize: 28,
     fontWeight: 'bold',
-    paddingVertical: 16,
+    paddingVertical: 8,
   },
   dateText: {
-
+    color: '#525566',
+    fontSize: 20,
+    paddingVertical: 8,
+    fontWeight: '400',
   },
   emailText: {
     color: '#525566',
     fontSize: 20,
     fontWeight: '400',
+    paddingVertical: 8,
   },
   logout: {
     backgroundColor: '#99D3A6',
@@ -147,8 +160,11 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
   }, []);
 
   return (    
-    <TouchableOpacity style={profilStyles.profilContainer} onPress={() => {setOpenProfil(false);}} activeOpacity={0.8}>
+    <View style={profilStyles.profilContainer}>
       <View style={profilStyles.backGroundIllus}></View>
+      <TouchableOpacity style={profilStyles.closeView} onPress={() => {setOpenProfil(false);}} activeOpacity={0.8}>
+      <Text style={profilStyles.close}>Fermer</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={profilStyles.profilPicture} onPress={addPicture} activeOpacity={0.6}>
         { loading &&
           <ActivityIndicator style={profilStyles.loading} size={'large'} color='#525566'></ActivityIndicator>
@@ -161,11 +177,12 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
       </TouchableOpacity>
       <View style={profilStyles.nameContainer}>
         <Text style={profilStyles.nameText}>{client?.firstname}</Text>
+        <Text style={profilStyles.dateText}>{client?.birthdate?.day}/{client?.birthdate?.month}/{client?.birthdate?.year}</Text>
         <Text style={profilStyles.emailText}>{client?.email}</Text>
       </View>
       <TouchableOpacity  style={profilStyles.logout} onPress={() => {logout();}} activeOpacity={0.6}>
         <MaterialIcons name="logout" size={24} color="#525566"/>
       </TouchableOpacity>
-    </TouchableOpacity>
+    </View>
   );
 };

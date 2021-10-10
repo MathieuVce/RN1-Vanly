@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity, Text, Dimensions, ActivityIndicator } from 'react-native';
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import * as Haptics from 'expo-haptics';
 import * as Location from 'expo-location';
 
@@ -155,16 +155,20 @@ export const Map: React.FC<IMapProps> = ({ }) => {
       try {
         const camera = await mapRef.getCamera();
         setIconSize({ 'width': camera.zoom * 3.2, 'height': camera.zoom * 3.8 });
+
       } catch (err) {
         console.error(err);
       }
     }
-    await getSites();
+    setSites(await getItems());
+    await filterItems();
   };
 
   useEffect(() => {
-    getPosition();
-    getSites();
+    (async () => {
+      await  getPosition();
+      await getSites();
+    })();
   }, []);
 
   return (

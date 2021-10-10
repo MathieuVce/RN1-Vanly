@@ -29,19 +29,21 @@ export const ClientProvider: React.FC = ({ children }) => {
       .auth()
       .signInWithEmailAndPassword(payload.email, payload.password)
       .then(async () => {
-        const tmpuser = await getUser();
-        if (tmpuser) {
-          setUser({ 'firstname': tmpuser.displayName, email: tmpuser.email, picture: tmpuser.photoURL ? tmpuser.photoURL : 'nonull' });
-          await AsyncStorage.setItem('user', JSON.stringify({ email: payload.email, password: payload.password, firstname: tmpuser.displayName, picture: tmpuser.photoURL ? tmpuser.photoURL : 'nonull' }));
-          Alerts.success({
-            title: 'Successful authentication',
-            message: `Welcome back ${tmpuser?.displayName} !`,
+
+        const tmpUser = await getUser();
+
+        if (tmpUser) {
+          const users = await firebase.firestore().collection('usersCollection').get();
+          const finalUser = users?.docs.map(doc => doc.data().uid == tmpUser.uid ? doc.data() : null).filter(function (el) {
+            return el != null;
           });
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        } else {
+
+          setUser({ 'firstname': finalUser[0]?.displayName, email: finalUser[0]?.email, picture: finalUser[0]?.photoURL ? finalUser[0]?.photoURL : 'nonull', birthdate: finalUser[0]?.birthdate });
+          await AsyncStorage.setItem('user', JSON.stringify({ email: payload.email, password: payload.password, firstname: finalUser[0]?.displayName, picture: finalUser[0]?.photoURL ? finalUser[0]?.photoURL : 'nonull', birthdate: finalUser[0]?.birthdate }));
+          
           Alerts.success({
             title: 'Successful authentication',
-            message: 'Welcome back !',
+            message: `Welcome back ${finalUser[0]?.displayName} !`,
           });
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
@@ -68,15 +70,23 @@ export const ClientProvider: React.FC = ({ children }) => {
       .auth()
       .createUserWithEmailAndPassword(payload.email, payload.password)
       .then(async () => {
-        const tmpuser = await getUser();
-        if (tmpuser) {
-          tmpuser.updateProfile({ displayName: payload.name });
-          Alerts.success({
-            title: 'Successful Registration',
-            message: '',
-          });
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        const tmpUser = await getUser();
+
+        console.log(tmpUser);
+        if (tmpUser) {
+          firebase.firestore().collection('usersCollection')
+            .add({
+              email: tmpUser.email,
+              birthdate: payload.birthdate,
+              displayName: payload.name,
+              uid: tmpUser.uid,
+            });
         }
+        Alerts.success({
+          title: 'Successful Registration',
+          message: '',
+        });
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       })
       .catch(error => {
         console.log(error);
