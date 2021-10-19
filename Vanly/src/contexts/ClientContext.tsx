@@ -5,7 +5,7 @@ import * as Haptics from 'expo-haptics';
 
 import firebase from '../database/firebase';
 import { IAuth, IClient, IPhoto, IRegisterClient, IReset } from '../@types/IClient';
-import { defaultClientValue, IClientContext, TGetImageFC, TGetItemsFC, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TSetImageFC, TSetItemsFC, TSleepFC, TTakePictureFC, TUpdatePictureFC, TUploadPictureFC } from '../@types/IClientContext';
+import { defaultClientValue, IClientContext, TDeleteImageFC, TDeleteItemFC, TGetImageFC, TGetItemsFC, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TSetImageFC, TSetItemsFC, TSleepFC, TTakePictureFC, TUpdatePictureFC, TUploadPictureFC } from '../@types/IClientContext';
 import { AlertContext } from './AlertContext';
 
 
@@ -72,7 +72,6 @@ export const ClientProvider: React.FC = ({ children }) => {
       .then(async () => {
         const tmpUser = await getUser();
 
-        console.log(tmpUser);
         if (tmpUser) {
           firebase.firestore().collection('usersCollection')
             .add({
@@ -125,10 +124,7 @@ export const ClientProvider: React.FC = ({ children }) => {
       aspect: [5, 5],
       quality: 1,
     });
-
-    if (result.cancelled) {
-      
-    }
+  
     return result;
 
   };
@@ -184,6 +180,16 @@ export const ClientProvider: React.FC = ({ children }) => {
     return firebase.firestore().collection('Sites');
   };
 
+  const deleteItem: TDeleteItemFC = async (payload) => {
+    console.log(payload.path);
+    await firebase.firestore().collection('Sites').doc(payload.name).delete();
+    await firebase.storage().ref().child('images/' + payload.path).delete();
+  };
+
+  const deleteImage: TDeleteImageFC = async (path) => {
+    await firebase.storage().ref().child('images/' + path).delete();
+  };
+
   const resetpassword: TResetPasswordFC = async (payload: IReset) => {
     await firebase
       .auth()
@@ -214,7 +220,7 @@ export const ClientProvider: React.FC = ({ children }) => {
       sleep,
       autolog, login, register, logout, resetpassword,
       uploadpicture, takepicture, updatePicture, getImage, setImage,
-      getUser, getItems, setItems,
+      getUser, getItems, setItems, deleteItem, deleteImage,
     }}
     >
       {children}

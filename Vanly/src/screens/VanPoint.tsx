@@ -1,12 +1,19 @@
 import React, { useContext, useState } from 'react';
-import { Dimensions, ActionSheetIOS, StyleSheet, TextInput, TouchableOpacity, View, Text, Image } from 'react-native';
-import { ClientContext } from '../contexts/ClientContext';
+import { Dimensions, ActionSheetIOS, StyleSheet, TextInput, TouchableOpacity, View, Text, Image, Platform, Alert, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as Haptics from 'expo-haptics';
+
+import { ClientContext } from '../contexts/ClientContext';
 
 interface IVanPointProps {
   setIndex: React.Dispatch<React.SetStateAction<number>>
   setValues: React.Dispatch<React.SetStateAction<any>>
+  setOpenNewPoint: React.Dispatch<React.SetStateAction<boolean>>
+  setModifying: React.Dispatch<React.SetStateAction<boolean>>
+  setTmpSites: React.Dispatch<React.SetStateAction<any>>
   values: any
+  modify: boolean
+  item: any
 }
 
 const newPointStyles = StyleSheet.create({
@@ -88,11 +95,11 @@ const newPointStyles = StyleSheet.create({
   },
 });
 
-export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values }) => {
+export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values, modify, setOpenNewPoint, item, setTmpSites, setModifying }) => {
 
-  const { uploadpicture, takepicture } = useContext(ClientContext);
+  const { uploadpicture, takepicture, setItems, client, setImage, getItems, deleteImage } = useContext(ClientContext);
 
-  const [uri, setUri] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const disable = () => {
     if (values.name && values.description && values.uri)
@@ -108,56 +115,129 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
 
     return status;
   };
+
+  const handleUpdate = async () => {
+
+    setIndex(2);
+
+    if (values.uri.split('/')[values.uri.split('/').length - 1] !== item.image) {
+      deleteImage(item.image);
+    }
+
+    const items = await setItems();
+
+    await items.doc(item.previousName).set({
+      creator: client?.firstname,
+      description: values.description,
+      image: values.uri.split('/')[values.uri.split('/').length - 1],
+      likes: item.likes,
+      name: values.name,
+      type: item.type,
+      coords: item.coords,
+      previousName: item.previousName,
+    });
+
+    setImage({ path: 'images/' + values.uri.split('/')[values.uri.split('/').length - 1], url: values.uri });
+    
+    setIndex(3);
+
+    setTmpSites((await getItems()).docs.map((doc: { data: () => any; }) => doc.data()));
+    var start = new Date().getTime();
+    var end = new Date().getTime();
+    var time = end - start;
+    
+    while (time <= 1000) {
+     
+      end = new Date().getTime();
+      time = end - start;
+    }
+
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setOpenNewPoint(false);
+    setIndex(0);
+    setValues({ name: '', description: '', uri: '' });
+    setModifying(false);
+  };
+
   const handleUpload = (isUploading: boolean) => {
     (async () => {
-      const res = await Promise.all([getPermissionAsync(isUploading), isUploading ? uploadpicture() : takepicture()]);
+      const res = await Promise.all([await getPermissionAsync(isUploading), isUploading ? uploadpicture() : takepicture()]);
       
-      setUri(res[1].uri);
-      setValues({ ...values, uri: res[1].uri });
+      if (!res[1].cancelled) {
+        setValues({ ...values, uri: res[1].uri });
+      }
 
     })().catch((error) => {
       console.log(error);
     }); 
   };
-  const addPicture = () => {
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        options: ['Cancel', 'Camera Roll', 'Camera'],
-        destructiveButtonIndex: 0,
-        cancelButtonIndex: 0,
-      },
-      buttonIndex => { 
-        if (buttonIndex === 0) {return; }
-        handleUpload(buttonIndex === 1); 
-      },
-    );
-  };
 
+  const addPicture = () => {
+    if (Platform.OS == 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['Camera Roll', 'Camera', 'Cancel'],
+          destructiveButtonIndex: 2,
+          cancelButtonIndex: 2,
+        },
+        buttonIndex => { 
+          if (buttonIndex === 2) {return; }
+          handleUpload(buttonIndex === 0); 
+        },
+      );
+    } else if (Platform.OS == 'android') {
+      Alert.alert(
+        'Que souhaitez-vous faire ?',
+        '',
+        [
+          { text: 'Camera Roll', onPress: async () => {
+            handleUpload(true);
+          },
+          },
+          { text: 'Camera', onPress: async () => {
+            handleUpload(false);
+          },
+          },
+          {
+            text: 'RETOUR',
+            onPress: () => {
+            },
+            style: 'cancel',
+          },
+        ],
+      );
+    }
+  };
 
   return (
     <View style={newPointStyles.container}>
-      <Text style={newPointStyles.headerText}>Create a VanPoint</Text>
+      {modify ?
+        <Text style={newPointStyles.headerText}>Modify a VanPoint</Text>
+        :
+        <Text style={newPointStyles.headerText}>Create a VanPoint</Text>
+      }
       <View style={newPointStyles.middleContainer}>
         <View style={newPointStyles.input}>
             <TextInput style={newPointStyles.inputName} value={values.name} onChangeText={(value: string) => {setValues({ ...values, name: value }); }} placeholder='Name' placeholderTextColor='grey' />
             <TextInput style={newPointStyles.inputDescription} value={values.description} onChangeText={(value: string) => {setValues({ ...values, description: value }); }} placeholder='Description...' placeholderTextColor='grey' />
         </View>
         <TouchableOpacity style={newPointStyles.imageContainer} onPress={addPicture}>
-          {!uri ? (
+          {!values.uri ? (
             <Text style={newPointStyles.addPictureText}>
-            Add a picture...
+              Add a picture...
             </Text>
           ) : (
-            <Image style={newPointStyles.image} source={{ uri }}/>
-          )
-          }
-         
+              <Image style={newPointStyles.image} source={{ uri: values.uri }} onLoadStart={() => {setLoading(true); }} onLoadEnd={() => {setLoading(false); }}/>
+          )}
+          {loading && values.uri && (
+            <ActivityIndicator style={{ position: 'absolute' }} size='large' color='#0B5F1E'></ActivityIndicator>
+          )}
         </TouchableOpacity>
       </View>
       <View style={newPointStyles.bottomContainer}>
         <TouchableOpacity
             style={newPointStyles.button_right}
-            onPress={() => {setIndex(1); }}
+            onPress={modify ? () => {handleUpdate(); } : () => {setIndex(1); }}
             disabled={disable()}
             activeOpacity={0.6}
           >

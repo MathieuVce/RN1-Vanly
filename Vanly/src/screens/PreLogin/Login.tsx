@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 16 * 4,
+    paddingHorizontal: 16 * 2,
     justifyContent: 'center',
     alignItems: 'flex-start',
   },
@@ -51,11 +51,12 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   input: {
-    textAlign: 'center',
-    fontSize: 25,
+    textAlign: 'left',
+    fontSize: 20,
     color: 'white',
     fontWeight: '700',
-    marginVertical: 16 * 1.5,
+    marginVertical: 16,
+    width: '100%',
   },
   centerText: {
     justifyContent: 'center',

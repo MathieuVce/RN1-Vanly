@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, Dimensions, Linking, Platform, ActivityIndicator } from 'react-native';
 import { AntDesign, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
+import { WebView } from 'react-native-webview';
 
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { ClientContext } from '../contexts/ClientContext';
 
 interface IViewItemProps {
   item: any
-  setSites: React.Dispatch<React.SetStateAction<any>>
   setTmpSites: React.Dispatch<React.SetStateAction<any>>
   setItem: React.Dispatch<React.SetStateAction<any>>
   image: any
@@ -61,12 +61,16 @@ const itemStyles = StyleSheet.create({
     width: Dimensions.get('window').width - 16 * 4,
     height: 16 * 15,
     alignItems: 'center',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderRadius: 10,
+    borderColor: '#525566',
   },
   modalImage: {
     flex: 1,
     width: '100%',
     height: '100%',
-    backgroundColor: 'rgba(0,0,0,10)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
   description: {
     fontSize: 20,
@@ -85,22 +89,25 @@ const itemStyles = StyleSheet.create({
     fontWeight: 'bold',
   },
   likeic: {
-    bottom: -12,
+    position: 'absolute',
+    bottom: 16,
   },
   like: {
     fontSize: 20,
     color: '#FEC156',
     marginVertical: 16,
-    marginLeft: 8,
+    marginLeft: 16 * 2,
     fontWeight: 'bold',
   },
 });
 
-export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites, image, setTmpSites, setItem }) => {
+export const ViewItem: React.FC<IViewItemProps> = ({ item, image, setTmpSites, setItem }) => {
 
   const { getItems, setItems, client } = useContext(ClientContext);
   const [like, setLike] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [viewImage, setViewImage] = useState(false);
+  const color = item.type == 'pointOfView' ? '#FEC156' : item.type == 'waterPoint' ? '#768AF8' : item.type == 'gazStation' ? '#B98888' : undefined;
 
   const addLike = async () => {
     const items = await setItems();
@@ -111,7 +118,6 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites, image, setT
     });
 
     setItem({ ...item, likes: { likes: item.likes.likes + 1, names: item.likes.names.concat([client?.firstname]) } });
-    setSites(await getItems());
     setTmpSites((await getItems()).docs.map((doc: { data: () => any; }) => doc.data()));
   };
 
@@ -124,7 +130,6 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites, image, setT
     });
 
     setItem({ ...item, likes: { likes: item.likes.likes - 1, names: item.likes.names.filter((elem: string) => elem !== client?.firstname) } });
-    setSites(await getItems());
     setTmpSites((await getItems()).docs.map((doc: { data: () => any; }) => doc.data()));
   };
 
@@ -144,7 +149,7 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites, image, setT
       }
     });
   };
-
+  
   useEffect(() => {
     if (item.likes.names.indexOf(client?.firstname) > -1) {
       setLike(true);
@@ -157,7 +162,7 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites, image, setT
       {
         loading && (
           <View style={itemStyles.center}>
-            <ActivityIndicator size={'large'} color={item.type == 'pointOfView' ? '#FEC156' : item.type == 'waterPoint' ? '#768AF8' : item.type == 'gazStation' ? '#B98888' : undefined}></ActivityIndicator>
+            <ActivityIndicator size={'large'} color={color}></ActivityIndicator>
           </View>
         )}
       <View style={itemStyles.head}>
@@ -182,7 +187,7 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites, image, setT
           <Text style={itemStyles.name}>{item?.name}</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={itemStyles.touchImage} onPress={() => {}}>
+      <TouchableOpacity style={itemStyles.touchImage} onPress={() => { }}>
         <Image style={itemStyles.image} source={{ uri : image }} onLoadStart={() => {setLoading(true); }} onLoadEnd={() => {setLoading(false); }}/>
       </TouchableOpacity>
       <Text style={{ ...itemStyles.description, paddingHorizontal: 16, marginBottom: 16 }}>{item?.description}</Text>
@@ -192,12 +197,15 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, setSites, image, setT
       </View>
       <View style={itemStyles.creator}>
         { like ? 
-          <AntDesign name='like1' size={27} color={item.type == 'pointOfView' ? '#FEC156' : item.type == 'waterPoint' ? '#768AF8' : item.type == 'gazStation' ? '#B98888' : undefined} style={itemStyles.likeic} onPress={() => {setLike(!like); removeLike(); }}/>
+          <AntDesign name='like1' size={27} color={color} style={itemStyles.likeic} onPress={() => {setLike(!like); removeLike(); }}/>
           :
           <AntDesign name='like2' size={27} color='lightgrey' style={itemStyles.likeic} onPress={() => {setLike(!like); addLike(); }}/>
         }
-        <Text style={{ ...itemStyles.like, color: item.type == 'pointOfView' ? '#FEC156' : item.type == 'waterPoint' ? '#768AF8' : item.type == 'gazStation' ? '#B98888' : undefined }}>{item?.likes.likes}</Text>
+        <Text style={{ ...itemStyles.like, color: color }}>{item?.likes.likes}</Text>
       </View>
+      {/* {viewImage && ( */}
+        {/* <WebView style={{ width: 16 * 15, height: 16 * 15, backgroundColor: 'black', padding: 16 * 25 }} source={{ uri : image }}/> */}
+      {/* )} */}
     </View>
   );
 };

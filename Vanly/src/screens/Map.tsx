@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity, Text, Dimensions, ActivityIndicator } from 'react-native';
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
-import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Haptics from 'expo-haptics';
 import * as Location from 'expo-location';
 
@@ -15,6 +15,7 @@ import { ViewItem } from './ViewItem';
 import { IRegion, mapStyle } from '../@types/IMap';
 import { Profil } from './Profil';
 import { ClientContext } from '../contexts/ClientContext';
+import { AlertContext } from '../contexts/AlertContext';
 
 type IMapProps = AppModelNavConnectedProps<'Map'>;
 
@@ -101,10 +102,13 @@ const mainStyles = StyleSheet.create({
   },
 });
 
-export const Map: React.FC<IMapProps> = ({ }) => {
-  const { getImage, getItems } = useContext(ClientContext);
+export const Map: React.FC<IMapProps> = () => {
+  const { getImage, getItems, client, deleteItem } = useContext(ClientContext);
+  const { Alerts } = useContext(AlertContext);
 
   const [openFilters, setOpenFilters] = useState(false);
+  const [modify, setModify] = useState(false);
+  const [isModifying, setModifying] = useState(false);
   const [openProfil, setOpenProfil] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [index, setIndex] = useState(0);
@@ -117,7 +121,7 @@ export const Map: React.FC<IMapProps> = ({ }) => {
   const [openNewPoint, setOpenNewPoint] = useState(false);
   const [mapRef, setMapRef] = useState<MapView | null>();
   const [region, setRegion] = useState<IRegion>({ latitude: 0, longitude: 0, latitudeDelta: 0, longitudeDelta: 0 });
-  const [values, setValues] = useState({ 'name': '', 'description': '', uri: undefined });
+  const [values, setValues] = useState({ name: '', description: '', uri: undefined });
   const [iconSize, setIconSize] = useState({ 'width': 42, 'height': 50 });
 
   const getSites = async () => {
@@ -154,7 +158,7 @@ export const Map: React.FC<IMapProps> = ({ }) => {
     if (mapRef) {
       try {
         const camera = await mapRef.getCamera();
-        setIconSize({ 'width': camera.zoom * 3.2, 'height': camera.zoom * 3.8 });
+        setIconSize({ 'width': camera.zoom * 1.7, 'height': camera.zoom * 2 });
 
       } catch (err) {
         console.error(err);
@@ -162,6 +166,26 @@ export const Map: React.FC<IMapProps> = ({ }) => {
     }
     setSites(await getItems());
     await filterItems();
+  };
+
+  const canModify = (doc: string | undefined) => {
+    if (doc == client?.firstname) {
+      setModify(true);
+    } else {
+      setModify(false);
+    }
+  };
+
+  const handleDelete = async (doc: any) => {
+    deleteItem({ name: doc.name, path: doc.image });
+    Alerts.success({
+      title: 'Vanpoint deleted',
+      message: '',
+    });
+    setIndex(0);
+    setValues({ name: '', description: '', uri: undefined });
+    setModifying(false);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   };
 
   useEffect(() => {
@@ -179,7 +203,7 @@ export const Map: React.FC<IMapProps> = ({ }) => {
         initialRegion={region}
         showsUserLocation={true}
         customMapStyle={mapStyle}
-        onLongPress={(e) => { setCreateNewPoint(e.nativeEvent.coordinate); setOpenNewPoint(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }}
+        onLongPress={(e) => { setCreateNewPoint(e.nativeEvent.coordinate); setOpenNewPoint(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); }}
         onRegionChange={onMapChange}
         maxZoomLevel={15}
         >
@@ -188,6 +212,7 @@ export const Map: React.FC<IMapProps> = ({ }) => {
               <Marker key={k} coordinate={{ latitude : doc.coords.latitude, longitude : doc.coords.longitude }} onPress={async () => {
                 setImage(await getImage({ path: 'images', url: doc.image }));
                 setItem(doc);
+                canModify(doc.creator);
                 await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); 
                 setOpenView(true);
               }}>
@@ -205,7 +230,7 @@ export const Map: React.FC<IMapProps> = ({ }) => {
           })
           }
       </MapView>
-  
+ 
       <View style={mainStyles.header}>
         <TouchableOpacity style={mainStyles.filters}  onPress={() => {setOpenFilters(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }} activeOpacity={0.45}>
           <MaterialCommunityIcons name="layers" size={24} color={ openFilters ? 'lightgrey' : '#99D3A6'} />
@@ -214,7 +239,7 @@ export const Map: React.FC<IMapProps> = ({ }) => {
           <FontAwesome name="user" size={24} color="#99D3A6" />
         </TouchableOpacity>
       </View>
-      
+   
       {
         openFilters ?
           <View style={mainStyles.modal}>
@@ -227,7 +252,7 @@ export const Map: React.FC<IMapProps> = ({ }) => {
               </View>
               : <View></View>
       }
-
+   
       <ModalE  isOpen={openFilters}  setIsOpen={setOpenFilters} height={16 * 27} close={() => {}}>
         <View style={mainStyles.filtersView}>
           <Item name='Point of View' icon={ { name: 'map-marker', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.pointOfView = !fieldValue.pointOfView; filterItems();Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }} isSelected={fieldValue.pointOfView} color={{ icon: '#FEC156', bg: '#FFEECF' }}/>
@@ -239,16 +264,26 @@ export const Map: React.FC<IMapProps> = ({ }) => {
       <ModalE  isOpen={openProfil}  setIsOpen={setOpenProfil} height={16 * -5} close={() => {}}>
         <Profil setOpenProfil={setOpenProfil}/>
       </ModalE>
-
-      <ModalE  isOpen={openView}  setIsOpen={setOpenView} height={16 * 15} close={() => {}}>
-        <ViewItem item={item} setSites={setSites} image={image} setTmpSites={setTmpSites} setItem={setItem} />
+   
+      <ModalE button={modify ? 'Modify' : undefined} onApply={async () => {
+        setModifying(true);
+        setValues(
+          {
+            name: item.name,
+            description:  item.description,
+            uri: await getImage({ path: 'images', url: item.image }),
+          },
+        ); 
+        setOpenNewPoint(true);
+      }} buttonColor={item ? (item.type == 'pointOfView' ? '#FFEECF' : item.type == 'waterPoint' ? '#DAE0FF' : item.type == 'gazStation' ? '#DEC3C3' : undefined) : undefined} isOpen={openView}  setIsOpen={setOpenView} height={16 * 15} close={() => {}}>
+        <ViewItem item={item} image={image} setTmpSites={setTmpSites} setItem={setItem} />
       </ModalE>
 
-      <ModalE isOpen={openNewPoint} setIsOpen={setOpenNewPoint} height={16 * 3} close={() => { setIndex(0); setValues({ 'name': '', 'description': '', uri: undefined }); }}>
+      <ModalE button={isModifying ? 'Delete' : undefined} buttonColor={'#0B5F1E'} onApply={() => {handleDelete(item); }} isOpen={openNewPoint} setIsOpen={setOpenNewPoint} height={16 * 3} close={() => { setIndex(0); setValues({ name: '', description: '', uri: undefined }); setModifying(false); }}>
           { index == 0 ?
-            <VanPoint setIndex={setIndex} setValues={setValues} values={values}/>  
+            <VanPoint setIndex={setIndex} setValues={setValues} values={values} modify={isModifying}  setModifying={setModifying} setOpenNewPoint={setOpenNewPoint} item={item} setTmpSites={setTmpSites}/>  
             : index == 1 ?
-              <VanPointFilter setIndex={setIndex} createNewPoint={createNewPoint} values={values} setOpenNewPoint={setOpenNewPoint} setTmpSites={setTmpSites} setSites={setSites} setValues={setValues}/>
+              <VanPointFilter setIndex={setIndex} createNewPoint={createNewPoint} values={values} setOpenNewPoint={setOpenNewPoint} setTmpSites={setTmpSites} setValues={setValues}/>
               : index == 2 ?
                 <View style={mainStyles.center}>
                   <ActivityIndicator size={'large'} color='#99D3A6'></ActivityIndicator>
@@ -256,7 +291,11 @@ export const Map: React.FC<IMapProps> = ({ }) => {
                 : index == 3 ?
                   <View style={mainStyles.center}>
                     <Image style={mainStyles.check} source={require('../assets/check.gif')}></Image>
-                    <Text style={mainStyles.checkText}>Vanpoint added !</Text>
+                    {isModifying ?
+                      <Text style={mainStyles.checkText}>Vanpoint modified !</Text>
+                      :
+                      <Text style={mainStyles.checkText}>Vanpoint added !</Text>
+                    }
                   </View> 
                   : <View></View>
           }

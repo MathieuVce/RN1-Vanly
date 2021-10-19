@@ -11,7 +11,6 @@ interface IVanPointFilterProps {
   createNewPoint: { 'latitude': number, 'longitude': number }
   setOpenNewPoint: React.Dispatch<React.SetStateAction<boolean>>
   setTmpSites: React.Dispatch<React.SetStateAction<any>>
-  setSites: React.Dispatch<React.SetStateAction<any>>
   setValues:  React.Dispatch<React.SetStateAction<any>>
 }
 
@@ -81,7 +80,7 @@ const newPointFilterStyles = StyleSheet.create({
   },
 });
 
-export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, values, createNewPoint, setOpenNewPoint, setTmpSites, setSites, setValues }) => {
+export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, values, createNewPoint, setOpenNewPoint, setTmpSites, setValues }) => {
 
   const { client, setImage, getItems, setItems } = useContext(ClientContext);
   const [fieldValue] = useState({ 'pointOfView': false, 'waterPoint': false, 'gazStation': false });
@@ -142,19 +141,20 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, value
                 name: values.name,
                 type: fieldValue.pointOfView ? 'pointOfView' : fieldValue.waterPoint ? 'waterPoint' : 'gazStation',
                 coords: createNewPoint,
+                previousName: values.name,
               });
 
               setImage({ path: 'images/' + values.uri.split('/')[values.uri.split('/').length - 1], url: values.uri });
+              
               setIndex(3);
               
-              setSites(await getItems());
               setTmpSites((await getItems()).docs.map((doc: { data: () => any; }) => doc.data()));
 
               var start = new Date().getTime();
-              var end = new Date().getTime();
-              var time = end - start;
+              var end = 0;
+              var time = 0;
               
-              while (time <= 3000) {
+              while (time <= 1000) {
                
                 end = new Date().getTime();
                 time = end - start;
@@ -163,7 +163,7 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, value
               await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               setOpenNewPoint(false);
               setIndex(0);
-              setValues({ 'name': '', 'description': '', uri: '' });
+              setValues({ name: '', description: '', uri: '' });
             }}
             disabled={disable()}
             activeOpacity={0.6}

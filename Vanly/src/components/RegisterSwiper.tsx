@@ -40,6 +40,8 @@ const styles = StyleSheet.create({
     fontSize: 25,
     color : 'white',
     fontWeight: '700',
+    backgroundColor: 'red',
+    width: '80%',
   },
   footer: {
     justifyContent: 'space-between',
@@ -126,12 +128,12 @@ const styles = StyleSheet.create({
 
 export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({ navigation }) => {
   const { register } = useContext(ClientContext);
-  const [day, setDay] = useState('');
-  const [month, setMonth] = useState('');
-  const [year, setYear] = useState('');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [day, setDay] = useState<string>('');
+  const [month, setMonth] = useState<string>('');
+  const [year, setYear] = useState<string>('');
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [step, setStep] = useState(0);
   const [swiper, setSwiper] = useState<any>();
 

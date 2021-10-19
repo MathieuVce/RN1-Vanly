@@ -31,3 +31,8 @@ export interface IPhoto {
   path: string,
   url?: string;
 }
+
+export interface IDelete {
+  name: string,
+  path: string
+}

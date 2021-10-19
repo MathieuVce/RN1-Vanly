@@ -1,4 +1,4 @@
-import { IAuth, IClient, IPhoto, IRegisterClient, IReset } from './IClient';
+import { IAuth, IClient, IDelete, IPhoto, IRegisterClient, IReset } from './IClient';
 
 export interface IClientContext {
   client?: null | IClient;
@@ -13,6 +13,8 @@ export interface IClientContext {
   register: TRegisterFC;
   getItems: TGetItemsFC;
   setItems: TSetItemsFC;
+  deleteItem: TDeleteItemFC;
+  deleteImage: TDeleteImageFC;
   takepicture: TTakePictureFC;
   uploadpicture: TUploadPictureFC;
   resetpassword: TResetPasswordFC;
@@ -28,11 +30,13 @@ export type TTakePictureFC = () => Promise<any>;
 export type TUploadPictureFC = () => Promise<any>;
 export type TSleepFC = (ms: number) => Promise<any>;
 export type TLoginFC = (payload: IAuth) => Promise<any>;
-export type TRegisterFC = (payload: IRegisterClient) => Promise<any>;
-export type TResetPasswordFC = (payload: IReset) => Promise<any>;
 export type TSetImageFC = (payload: IPhoto) => Promise<any>;
 export type TGetImageFC = (payload: IPhoto) => Promise<any>;
+export type TDeleteImageFC = (path: string) => Promise<any>;
+export type TDeleteItemFC = (payload: IDelete) => Promise<any>;
+export type TResetPasswordFC = (payload: IReset) => Promise<any>;
 export type TUpdatePictureFC = (payload: IPhoto) => Promise<any>;
+export type TRegisterFC = (payload: IRegisterClient) => Promise<any>;
 
 
 export const defaultClientValue: IClientContext = {
@@ -48,6 +52,8 @@ export const defaultClientValue: IClientContext = {
   register: () => Promise.reject(null),
   getImage: () => Promise.reject(null),
   setImage: () => Promise.reject(null),
+  deleteItem: () => Promise.reject(null),
+  deleteImage: () => Promise.reject(null),
   takepicture: () => Promise.reject(null),
   updatePicture: () => Promise.reject(null),
   uploadpicture: () => Promise.reject(null),

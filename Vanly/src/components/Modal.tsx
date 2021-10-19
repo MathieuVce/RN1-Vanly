@@ -10,6 +10,7 @@ interface IModalEProps {
   onApply?: () => void;
   close: () => void;
   height?: number;
+  buttonColor?: string;
 }
 
 const styles = StyleSheet.create({
@@ -30,7 +31,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16 * 1.5,
     paddingVertical: 16 * .5,
     borderRadius: 16 * 2,
-    backgroundColor: '#0B5F1E',
   },
 
   applyBtnText: {
@@ -64,9 +64,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export const ModalE: React.FC<IModalEProps> = ({  isOpen, setIsOpen, children, button, close, height, onApply }) => {
+export const ModalE: React.FC<IModalEProps> = ({  isOpen, setIsOpen, children, button, close, height, onApply, buttonColor }) => {
 
-  const [start, setStart] = useState(0);
+  const [start, setStart] = useState<number>(0);
 
 
   const handleClose = () => {
@@ -97,8 +97,8 @@ export const ModalE: React.FC<IModalEProps> = ({  isOpen, setIsOpen, children, b
                         if (onApply)
                           onApply();
                       }}>
-                          <View style={styles.applyBtn}>
-                              <Text style={styles.applyBtnText}>{button}</Text>
+                          <View style={{ ...styles.applyBtn, backgroundColor: buttonColor }}>
+                              <Text style={{ ...styles.applyBtnText, color: buttonColor == '#0B5F1E' ?  'white' : buttonColor !==  '#0B5F1E' ? '#525566' : 'white' }}>{button}</Text>
                           </View>
                       </TouchableOpacity>
                   )}

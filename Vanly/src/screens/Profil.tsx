@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ActionSheetIOS, StyleSheet, TouchableOpacity, View, Image, Text, ActivityIndicator } from 'react-native';
+import { ActionSheetIOS, StyleSheet, TouchableOpacity, View, Image, Text, ActivityIndicator, Platform, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -132,8 +132,11 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
   const handleUpload = (isUploading: boolean) => {
     (async () => {
       const res = await Promise.all([getPermissionAsync(isUploading), isUploading ? uploadpicture() : takepicture()]);
-      setUri(res[1].uri);
-      updatePicture({ path: 'profil/' + res[1].uri.split('/')[res[1].uri.split('/').length - 1], url: res[1].uri });
+      
+      if (!res[1].cancelled) {
+        setUri(res[1].uri);
+        updatePicture({ path: 'profil/' + res[1].uri.split('/')[res[1].uri.split('/').length - 1], url: res[1].uri });
+      }
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     })().catch((error) => {
@@ -142,17 +145,40 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
   };
 
   const addPicture = () => {
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        options: ['Cancel', 'Camera Roll', 'Camera'],
-        destructiveButtonIndex: 0,
-        cancelButtonIndex: 0,
-      },
-      buttonIndex => { 
-        if (buttonIndex === 0) {return;}
-        handleUpload(buttonIndex === 1); 
-      },
-    );
+    if (Platform.OS == 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['Camera Roll', 'Camera', 'Cancel'],
+          destructiveButtonIndex: 2,
+          cancelButtonIndex: 2,
+        },
+        buttonIndex => { 
+          if (buttonIndex === 2) {return; }
+          handleUpload(buttonIndex === 0); 
+        },
+      );
+    } else if (Platform.OS == 'android') {
+      Alert.alert(
+        'Que souhaitez-vous faire ?',
+        '',
+        [
+          { text: 'Camera Roll', onPress: async () => {
+            handleUpload(true);
+          },
+          },
+          { text: 'Camera', onPress: async () => {
+            handleUpload(false);
+          },
+          },
+          {
+            text: 'RETOUR',
+            onPress: () => {
+            },
+            style: 'cancel',
+          },
+        ],
+      );
+    }
   };
 
   useEffect(() => {
