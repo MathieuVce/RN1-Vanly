@@ -97,7 +97,7 @@ const newPointStyles = StyleSheet.create({
 
 export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values, modify, setOpenNewPoint, item, setTmpSites, setModifying }) => {
 
-  const { uploadpicture, takepicture, setItems, client, setImage, getItems, deleteImage } = useContext(ClientContext);
+  const { uploadpicture, takepicture, setItems, client, setImage, getItems, deleteImage, getTraduction } = useContext(ClientContext);
 
   const [loading, setLoading] = useState(true);
 
@@ -212,19 +212,19 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
   return (
     <View style={newPointStyles.container}>
       {modify ?
-        <Text style={newPointStyles.headerText}>Modify a VanPoint</Text>
+        <Text style={newPointStyles.headerText}>{getTraduction('MODIFY_HEADER')}</Text>
         :
-        <Text style={newPointStyles.headerText}>Create a VanPoint</Text>
+        <Text style={newPointStyles.headerText}>{getTraduction('CREATE_HEADER')}</Text>
       }
       <View style={newPointStyles.middleContainer}>
         <View style={newPointStyles.input}>
-            <TextInput style={newPointStyles.inputName} value={values.name} onChangeText={(value: string) => {setValues({ ...values, name: value }); }} placeholder='Name' placeholderTextColor='grey' />
-            <TextInput style={newPointStyles.inputDescription} value={values.description} onChangeText={(value: string) => {setValues({ ...values, description: value }); }} placeholder='Description...' placeholderTextColor='grey' />
+            <TextInput style={newPointStyles.inputName} value={values.name} onChangeText={(value: string) => {setValues({ ...values, name: value }); }} placeholder={getTraduction('INPUT_NAME')} placeholderTextColor='grey' />
+            <TextInput style={newPointStyles.inputDescription} value={values.description} onChangeText={(value: string) => {setValues({ ...values, description: value }); }} placeholder={getTraduction('INPUT_DESCRIPTION')} placeholderTextColor='grey' />
         </View>
         <TouchableOpacity style={newPointStyles.imageContainer} onPress={addPicture}>
           {!values.uri ? (
             <Text style={newPointStyles.addPictureText}>
-              Add a picture...
+              {getTraduction('ADD_A_PICTURE')}
             </Text>
           ) : (
               <Image style={newPointStyles.image} source={{ uri: values.uri }} onLoadStart={() => {setLoading(true); }} onLoadEnd={() => {setLoading(false); }}/>

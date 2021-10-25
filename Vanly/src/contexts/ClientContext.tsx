@@ -5,16 +5,23 @@ import * as Haptics from 'expo-haptics';
 
 import firebase from '../database/firebase';
 import { IAuth, IClient, IPhoto, IRegisterClient, IReset } from '../@types/IClient';
-import { defaultClientValue, IClientContext, TDeleteImageFC, TDeleteItemFC, TGetImageFC, TGetItemsFC, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TSetImageFC, TSetItemsFC, TSleepFC, TTakePictureFC, TUpdatePictureFC, TUploadPictureFC } from '../@types/IClientContext';
+import { defaultClientValue, IClientContext, TDeleteImageFC, TDeleteItemFC, TGetImageFC, TGetItemsFC, TGetTraductionFC, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TSetAppLangFC, TSetImageFC, TSetItemsFC, TSleepFC, TTakePictureFC, TUpdatePictureFC, TUploadPictureFC } from '../@types/IClientContext';
 import { AlertContext } from './AlertContext';
-
+import fr from '../traduction/fr.json';
+import en from '../traduction/en.json';
 
 export const ClientContext = createContext<IClientContext>(defaultClientValue);
 
 export const ClientProvider: React.FC = ({ children }) => {
 
+  const data = {
+    fr,
+    en,
+  };
   const [user, setUser] = useState<null | IClient >(null);
   const { Alerts } = useContext(AlertContext);
+  const [lang, setLang] = useState<'fr' | 'en'>('fr');
+
 
   const getUser: TGetUserFC = async () => {
     const tmpuser = firebase.auth().currentUser;
@@ -190,6 +197,14 @@ export const ClientProvider: React.FC = ({ children }) => {
     await firebase.storage().ref().child('images/' + path).delete();
   };
 
+  const setAppLang: TSetAppLangFC = async (language) => {
+    setLang(language);
+  };
+
+  const getTraduction: TGetTraductionFC = (keyWord) => {
+    return data[lang][keyWord];
+  };
+
   const resetpassword: TResetPasswordFC = async (payload: IReset) => {
     await firebase
       .auth()
@@ -217,7 +232,7 @@ export const ClientProvider: React.FC = ({ children }) => {
   return (
     <ClientContext.Provider value={{
       client: user,
-      sleep,
+      sleep, getTraduction, setAppLang,
       autolog, login, register, logout, resetpassword,
       uploadpicture, takepicture, updatePicture, getImage, setImage,
       getUser, getItems, setItems, deleteItem, deleteImage,

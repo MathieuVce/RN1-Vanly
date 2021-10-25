@@ -37,6 +37,20 @@ const profilStyles = StyleSheet.create({
   loading: {
     marginTop: 16 * 9,
   },
+  flagFr: {
+    position: 'absolute',
+    width: 22,
+    height: 16,
+    right: -16 * 9,
+    top: 16 * 2,
+  },
+  flagUk: {
+    position: 'absolute',
+    width: 22,
+    height: 16,
+    right: -16 * 11,
+    top: 16 * 2,
+  },
   profilPicture : {
     height : 150,
     width : 150,
@@ -109,7 +123,7 @@ const profilStyles = StyleSheet.create({
 
 export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
 
-  const { uploadpicture, takepicture, client, logout, updatePicture, getImage, getUser } = useContext(ClientContext);
+  const { uploadpicture, takepicture, client, logout, updatePicture, getImage, getUser, getTraduction, setAppLang } = useContext(ClientContext);
 
   const [uri, setUri] = useState('nonull');
   const [loading, setLoading] = useState(false);
@@ -188,8 +202,20 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
   return (    
     <View style={profilStyles.profilContainer}>
       <View style={profilStyles.backGroundIllus}></View>
-      <TouchableOpacity style={profilStyles.closeView} onPress={() => {setOpenProfil(false);}} activeOpacity={0.8}>
-      <Text style={profilStyles.close}>Fermer</Text>
+      <TouchableOpacity style={profilStyles.closeView} onPress={() => {setOpenProfil(false); }} activeOpacity={0.8}>
+        <Text style={profilStyles.close}>{getTraduction('PROFIL_CLOSE')}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => {setAppLang('fr'); }} activeOpacity={0.6}>
+        <Image
+          source={require('../assets/fr.png')}
+          style={profilStyles.flagFr}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => {setAppLang('en'); }} activeOpacity={0.6}>
+        <Image
+          source={require('../assets/uk.png')}
+          style={profilStyles.flagUk}
+        />
       </TouchableOpacity>
       <TouchableOpacity style={profilStyles.profilPicture} onPress={addPicture} activeOpacity={0.6}>
         { loading &&

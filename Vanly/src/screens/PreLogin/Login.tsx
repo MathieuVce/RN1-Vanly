@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   Platform,
+  Image,
 } from 'react-native';
 
 import { IAuth } from '../../@types/IClient';
@@ -20,7 +21,7 @@ import { AppModelNavProps } from '../../roots/AppModelNav';
 
 type ILoginProps = AppModelNavProps<'Login'>;
 
-const styles = StyleSheet.create({
+const porfilstyles = StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -31,6 +32,20 @@ const styles = StyleSheet.create({
   header: {
     marginLeft: 30,
     marginTop: 30,
+  },
+  flagFr: {
+    position: 'absolute',
+    width: 22,
+    height: 16,
+    right: 16 * 3,
+    top: -16 * 8,
+  },
+  flagUk: {
+    position: 'absolute',
+    width: 22,
+    height: 16,
+    right: 16,
+    top: -16 * 8,
   },
   title: {
     fontSize: 45,
@@ -91,7 +106,7 @@ const styles = StyleSheet.create({
 });
 
 export const Login: React.FC<ILoginProps> = ({ navigation }) => {
-  const { login } = useContext(ClientContext);
+  const { login, getTraduction, setAppLang } = useContext(ClientContext);
 
   const [values, setValues] = useState<IAuth>({
     email: 'mathieu.vacance@epitech.eu',
@@ -116,27 +131,39 @@ export const Login: React.FC<ILoginProps> = ({ navigation }) => {
   return (
     <ImageBackground
       source={require('../../assets/Login.png')}
-      style={styles.background}
+      style={porfilstyles.background}
     >
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Heureux, de</Text>
-          <Text style={styles.title}>vous revoir! </Text>
+      <SafeAreaView style={porfilstyles.container}>
+        <View style={porfilstyles.header}>
+          <Text style={porfilstyles.title}>{getTraduction('TITLE')}</Text>
+          <Text style={porfilstyles.title}>{getTraduction('TITLE2')}</Text>
+          <TouchableOpacity onPress={() => {setAppLang('fr'); }} activeOpacity={0.6}>
+            <Image
+              source={require('../../assets/fr.png')}
+              style={porfilstyles.flagFr}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {setAppLang('en'); }} activeOpacity={0.6}>
+            <Image
+              source={require('../../assets/uk.png')}
+              style={porfilstyles.flagUk}
+            />
+          </TouchableOpacity>
         </View>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{ flex: 1 }}
         >
-          <View style={styles.content}>
+          <View style={porfilstyles.content}>
             <TextInput
-              style={styles.input}
+              style={porfilstyles.input}
               placeholder="contact@email.com"
               keyboardType="email-address"
               value={values.email}
               onChangeText={handleChange('email')}
             ></TextInput>
             <TextInput
-              style={styles.input}
+              style={porfilstyles.input}
               placeholder="*******"
               secureTextEntry
               value={values.password}
@@ -144,21 +171,21 @@ export const Login: React.FC<ILoginProps> = ({ navigation }) => {
             ></TextInput>
           </View>
 
-          <View style={styles.footer}>
+          <View style={porfilstyles.footer}>
             <TouchableOpacity
-              style={styles.buttonLogin}
+              style={porfilstyles.buttonLogin}
               onPress={onSubmit}
             >
-              <Text style={styles.textButton}>{'→'}</Text>
+              <Text style={porfilstyles.textButton}>{'→'}</Text>
             </TouchableOpacity>
           </View>
 
-          <View style={styles.footer}>
-            <View style={styles.centerText}>
-              <Text style={styles.subscribeText}>Pas encore de compte? </Text>
+          <View style={porfilstyles.footer}>
+            <View style={porfilstyles.centerText}>
+              <Text style={porfilstyles.subscribeText}>{getTraduction('NO_ACCOUNT')}</Text>
             </View>
             <Button
-              title="Incrivez vous!"
+              title={getTraduction('SUBSCRIBE')}
               onPress={() => navigation.navigate('Register')}
             />
           </View>

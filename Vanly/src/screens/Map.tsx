@@ -103,7 +103,7 @@ const mainStyles = StyleSheet.create({
 });
 
 export const Map: React.FC<IMapProps> = () => {
-  const { getImage, getItems, client, deleteItem } = useContext(ClientContext);
+  const { getImage, getItems, client, deleteItem, getTraduction } = useContext(ClientContext);
   const { Alerts } = useContext(AlertContext);
 
   const [openFilters, setOpenFilters] = useState(false);
@@ -133,11 +133,15 @@ export const Map: React.FC<IMapProps> = () => {
   const getPosition = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
+      Alerts.warning({
+        title: 'We need your permission to proceed',
+        message: '',
+      });
       return;
     }
 
-    const position = await Location.getCurrentPositionAsync({});
-    setRegion({ ...region, latitude: position.coords.latitude, longitude: position.coords.longitude });
+    const position = await Location.getLastKnownPositionAsync({});
+    setRegion({ ...region, latitude: position?.coords.latitude!, longitude: position?.coords.longitude! });
   };
 
   const filterItems = async () => {
@@ -154,7 +158,7 @@ export const Map: React.FC<IMapProps> = () => {
     }));
   };
 
-  const onMapChange = async () => {
+  const onRegionChange = async () => {
     if (mapRef) {
       try {
         const camera = await mapRef.getCamera();
@@ -204,7 +208,7 @@ export const Map: React.FC<IMapProps> = () => {
         showsUserLocation={true}
         customMapStyle={mapStyle}
         onLongPress={(e) => { setCreateNewPoint(e.nativeEvent.coordinate); setOpenNewPoint(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); }}
-        onRegionChange={onMapChange}
+        onRegionChange={onRegionChange}
         maxZoomLevel={15}
         >
           { tmpSites?.map((doc, k) => {
@@ -255,9 +259,9 @@ export const Map: React.FC<IMapProps> = () => {
    
       <ModalE  isOpen={openFilters}  setIsOpen={setOpenFilters} height={16 * 27} close={() => {}}>
         <View style={mainStyles.filtersView}>
-          <Item name='Point of View' icon={ { name: 'map-marker', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.pointOfView = !fieldValue.pointOfView; filterItems();Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }} isSelected={fieldValue.pointOfView} color={{ icon: '#FEC156', bg: '#FFEECF' }}/>
-          <Item name='Water Point' icon={ { name: 'water-off', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.waterPoint = !fieldValue.waterPoint; filterItems();Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }} isSelected={fieldValue.waterPoint} color={{ icon: '#768AF8', bg: '#DAE0FF' }}/>
-          <Item name='Gaz Station' icon={ { name: 'car', type: 'FontAwesome5' }} onPress={() => { fieldValue.gazStation = !fieldValue.gazStation; filterItems();Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }} isSelected={fieldValue.gazStation} color={{ icon: '#B98888', bg: '#DEC3C3' }}/>
+          <Item name={getTraduction('POINT_OF_VIEW')} icon={ { name: 'map-marker', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.pointOfView = !fieldValue.pointOfView; filterItems();Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }} isSelected={fieldValue.pointOfView} color={{ icon: '#FEC156', bg: '#FFEECF' }}/>
+          <Item name={getTraduction('WATER_POINT')}  icon={ { name: 'water-off', type: 'MaterialCommunityIcons' }} onPress={() => { fieldValue.waterPoint = !fieldValue.waterPoint; filterItems();Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }} isSelected={fieldValue.waterPoint} color={{ icon: '#768AF8', bg: '#DAE0FF' }}/>
+          <Item name={getTraduction('GAZ_STATION')}  icon={ { name: 'car', type: 'FontAwesome5' }} onPress={() => { fieldValue.gazStation = !fieldValue.gazStation; filterItems();Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }} isSelected={fieldValue.gazStation} color={{ icon: '#B98888', bg: '#DEC3C3' }}/>
         </View>
       </ModalE>
 
@@ -265,7 +269,7 @@ export const Map: React.FC<IMapProps> = () => {
         <Profil setOpenProfil={setOpenProfil}/>
       </ModalE>
    
-      <ModalE button={modify ? 'Modify' : undefined} onApply={async () => {
+      <ModalE button={modify ? getTraduction('MODIFY') : undefined} onApply={async () => {
         setModifying(true);
         setValues(
           {
@@ -279,7 +283,7 @@ export const Map: React.FC<IMapProps> = () => {
         <ViewItem item={item} image={image} setTmpSites={setTmpSites} setItem={setItem} />
       </ModalE>
 
-      <ModalE button={isModifying ? 'Delete' : undefined} buttonColor={'#0B5F1E'} onApply={() => {handleDelete(item); }} isOpen={openNewPoint} setIsOpen={setOpenNewPoint} height={16 * 3} close={() => { setIndex(0); setValues({ name: '', description: '', uri: undefined }); setModifying(false); }}>
+      <ModalE button={isModifying ? getTraduction('DELETE') : undefined} buttonColor={'#0B5F1E'} onApply={() => {handleDelete(item); }} isOpen={openNewPoint} setIsOpen={setOpenNewPoint} height={16 * 3} close={() => { setIndex(0); setValues({ name: '', description: '', uri: undefined }); setModifying(false); }}>
           { index == 0 ?
             <VanPoint setIndex={setIndex} setValues={setValues} values={values} modify={isModifying}  setModifying={setModifying} setOpenNewPoint={setOpenNewPoint} item={item} setTmpSites={setTmpSites}/>  
             : index == 1 ?
@@ -292,9 +296,9 @@ export const Map: React.FC<IMapProps> = () => {
                   <View style={mainStyles.center}>
                     <Image style={mainStyles.check} source={require('../assets/check.gif')}></Image>
                     {isModifying ?
-                      <Text style={mainStyles.checkText}>Vanpoint modified !</Text>
+                      <Text style={mainStyles.checkText}>{getTraduction('VANPOINT_MODIFIED')}</Text>
                       :
-                      <Text style={mainStyles.checkText}>Vanpoint added !</Text>
+                      <Text style={mainStyles.checkText}>{getTraduction('VANPOINT_ADDED')}</Text>
                     }
                   </View> 
                   : <View></View>

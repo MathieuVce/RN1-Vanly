@@ -7,6 +7,7 @@ import {
   TextInput,
   Keyboard,
 } from 'react-native';
+
 import { ClientContext } from '../contexts/ClientContext';
 import Swiper from 'react-native-swiper/src';
 
@@ -40,7 +41,6 @@ const styles = StyleSheet.create({
     fontSize: 25,
     color : 'white',
     fontWeight: '700',
-    backgroundColor: 'red',
     width: '80%',
   },
   footer: {
@@ -127,7 +127,8 @@ const styles = StyleSheet.create({
 });
 
 export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({ navigation }) => {
-  const { register } = useContext(ClientContext);
+  const { register, getTraduction } = useContext(ClientContext);
+
   const [day, setDay] = useState<string>('');
   const [month, setMonth] = useState<string>('');
   const [year, setYear] = useState<string>('');
@@ -182,13 +183,11 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({ navigation }) =
     return (
       <View style={styles.flex}>
         <View style={styles.header}>
-          <Text style={styles.title}>Hey c&apos;est</Text>
-          <Text style={styles.title}>quoi ton </Text>
-          <Text style={styles.title}>nom ? </Text>
+          <Text style={styles.title}>{getTraduction('WHAT_IS_YOUR_NAME')}</Text>
         </View>
         <View style={styles.content}>
           <TextInput
-            placeholder="Je m'appelle..."
+            placeholder={getTraduction('WHAT_IS_YOUR_NAME_PLACEHOLDER')}
             onChangeText={setName}
             style={styles.input}
             keyboardType="default"
@@ -202,7 +201,7 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({ navigation }) =
     return (
       <View style={styles.picker_container}>
         <View style={styles.picker_container2}>
-          <Text style={styles.picker_inputTitle}>Jour</Text>
+          <Text style={styles.picker_inputTitle}>{getTraduction('DAY')}</Text>
           <TextInput
             style={styles.picker_input}
             placeholder={'31'}
@@ -212,7 +211,7 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({ navigation }) =
           />
         </View>
         <View style={styles.picker_container2}>
-          <Text style={styles.picker_inputTitle}>Mois</Text>
+          <Text style={styles.picker_inputTitle}>{getTraduction('MONTH')}</Text>
           <TextInput
             style={styles.picker_input}
             placeholder={'12'}
@@ -222,7 +221,7 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({ navigation }) =
           />
         </View>
         <View style={styles.picker_container2}>
-          <Text style={styles.picker_inputTitle}>Année</Text>
+          <Text style={styles.picker_inputTitle}>{getTraduction('YEAR')}</Text>
           <TextInput
             style={styles.picker_input}
             placeholder={'1998'}
@@ -238,7 +237,7 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({ navigation }) =
     return (
       <View style={styles.flex}>
         <View style={styles.header}>
-          <Text style={styles.title}>Enchanté {name}, tu es né quand ?</Text>
+          <Text style={styles.title}>{getTraduction('WHEN_BORN')} {name} ?</Text>
         </View>
         <View style={styles.content}>{renderDatePicker()}</View>
       </View>
@@ -249,7 +248,7 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({ navigation }) =
     return (
       <View style={styles.flex}>
         <View style={styles.header}>
-          <Text style={styles.title}>Comment peut-on te contacter?</Text>
+          <Text style={styles.title}>{getTraduction('HOW_CONTACT')}</Text>
         </View>
         <View style={styles.content}>
           <TextInput
@@ -267,7 +266,7 @@ export const RegisterSwiper: React.FC<IRegisterSwiperProps> = ({ navigation }) =
     return (
       <View style={styles.flex}>
         <View style={styles.header}>
-          <Text style={styles.title}>Choisis ton propre mot de passe !</Text>
+          <Text style={styles.title}>{getTraduction('CHOOSE_PASSWORD')}</Text>
         </View>
         <View style={styles.content}>
           <TextInput

@@ -103,7 +103,7 @@ const itemStyles = StyleSheet.create({
 
 export const ViewItem: React.FC<IViewItemProps> = ({ item, image, setTmpSites, setItem }) => {
 
-  const { getItems, setItems, client } = useContext(ClientContext);
+  const { getItems, setItems, client, getTraduction } = useContext(ClientContext);
   const [like, setLike] = useState(false);
   const [loading, setLoading] = useState(true);
   const [viewImage, setViewImage] = useState(false);
@@ -192,7 +192,7 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, image, setTmpSites, s
       </TouchableOpacity>
       <Text style={{ ...itemStyles.description, paddingHorizontal: 16, marginBottom: 16 }}>{item?.description}</Text>
       <View style={itemStyles.creator}>
-        <Text style={itemStyles.description}>by </Text>
+        <Text style={itemStyles.description}>{getTraduction('BY')}</Text>
         <Text style={itemStyles.create}>{item?.creator}</Text>
       </View>
       <View style={itemStyles.creator}>

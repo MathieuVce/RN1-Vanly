@@ -82,7 +82,7 @@ const newPointFilterStyles = StyleSheet.create({
 
 export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, values, createNewPoint, setOpenNewPoint, setTmpSites, setValues }) => {
 
-  const { client, setImage, getItems, setItems } = useContext(ClientContext);
+  const { client, setImage, getItems, setItems, getTraduction } = useContext(ClientContext);
   const [fieldValue] = useState({ 'pointOfView': false, 'waterPoint': false, 'gazStation': false });
 
   const disable = () => {
@@ -96,26 +96,26 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, value
     <View style={newPointFilterStyles.container}>
       <Text style={newPointFilterStyles.headerTextFilter}>Choose a VanPoint type</Text>
       <View style={newPointFilterStyles.middleContainer}>
-          <Item name='Point of View' icon={ { name: 'map-marker', type: 'MaterialCommunityIcons' }} onPress={() => { 
+          <Item name={getTraduction('POINT_OF_VIEW')} icon={ { name: 'map-marker', type: 'MaterialCommunityIcons' }} onPress={() => { 
             fieldValue.pointOfView = !fieldValue.pointOfView;
             fieldValue.waterPoint = false;
             fieldValue.gazStation = false;
           }} isSelected={fieldValue.pointOfView} color={{ icon: '#FEC156', bg: '#FFEECF' }}
-          description='Such a nice quiet place where to live your life !'
+          description={getTraduction('POINT_OF_VIEW_DESCRIPTION')}
           />
-          <Item name='Water Point' icon={ { name: 'water-off', type: 'MaterialCommunityIcons' }} onPress={() => {
+          <Item name={getTraduction('WATER_POINT')} icon={ { name: 'water-off', type: 'MaterialCommunityIcons' }} onPress={() => {
             fieldValue.waterPoint = !fieldValue.waterPoint;
             fieldValue.pointOfView = false;
             fieldValue.gazStation = false;
           }} isSelected={fieldValue.waterPoint} color={{ icon: '#768AF8', bg: '#DAE0FF' }}
-          description='Glouglouglou, tap water everywhere'
+          description={getTraduction('WATER_POINT_DESCRIPTION')}
           />
-          <Item name='Gaz Station' icon={ { name: 'car', type: 'FontAwesome5' }} onPress={() => {
+          <Item name={getTraduction('GAZ_STATION')} icon={ { name: 'car', type: 'FontAwesome5' }} onPress={() => {
             fieldValue.gazStation = !fieldValue.gazStation;
             fieldValue.pointOfView = false;
             fieldValue.waterPoint = false;
           }} isSelected={fieldValue.gazStation} color={{ icon: '#B98888', bg: '#DEC3C3' }}
-          description='If you need some fuel... look around !'
+          description={getTraduction('GAZ_STATION_DESCRIPTION')}
           />
       </View>
       <View style={newPointFilterStyles.bottomContainer}>
