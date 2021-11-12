@@ -30,5 +30,7 @@
     "CANCEL": "Annuler",
     "DELETE": "Supprimer",
     "MODIFY": "Modifier",
-    "BY": "par "
+    "BY": "par ",
+    "RESET_PWD": "Réinitialiser le mdp",
+    "FORGOTTEN_PWD": "Mot de passe oublié?"
   }
