@@ -103,6 +103,11 @@ const porfilstyles = StyleSheet.create({
     color: 'white',
     fontWeight: '900',
   },
+  resetPwd: {
+    width: '100%',
+    alignItems: 'flex-end',
+    fontSize: 8,
+  },
 });
 
 export const Login: React.FC<ILoginProps> = ({ navigation }) => {
@@ -137,13 +142,23 @@ export const Login: React.FC<ILoginProps> = ({ navigation }) => {
         <View style={porfilstyles.header}>
           <Text style={porfilstyles.title}>{getTraduction('TITLE')}</Text>
           <Text style={porfilstyles.title}>{getTraduction('TITLE2')}</Text>
-          <TouchableOpacity onPress={() => {setAppLang('fr'); }} activeOpacity={0.6}>
+          <TouchableOpacity
+            onPress={() => {
+              setAppLang('fr');
+            }}
+            activeOpacity={0.6}
+          >
             <Image
               source={require('../../assets/fr.png')}
               style={porfilstyles.flagFr}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {setAppLang('en'); }} activeOpacity={0.6}>
+          <TouchableOpacity
+            onPress={() => {
+              setAppLang('en');
+            }}
+            activeOpacity={0.6}
+          >
             <Image
               source={require('../../assets/uk.png')}
               style={porfilstyles.flagUk}
@@ -169,6 +184,12 @@ export const Login: React.FC<ILoginProps> = ({ navigation }) => {
               value={values.password}
               onChangeText={handleChange('password')}
             ></TextInput>
+            <View style={porfilstyles.resetPwd}>
+            <Button
+              title="Mot de passe oublié?"
+              onPress={() => navigation.navigate('ForgottenPassword')}
+            />
+            </View>
           </View>
 
           <View style={porfilstyles.footer}>
@@ -182,7 +203,9 @@ export const Login: React.FC<ILoginProps> = ({ navigation }) => {
 
           <View style={porfilstyles.footer}>
             <View style={porfilstyles.centerText}>
-              <Text style={porfilstyles.subscribeText}>{getTraduction('NO_ACCOUNT')}</Text>
+              <Text style={porfilstyles.subscribeText}>
+                {getTraduction('NO_ACCOUNT')}
+              </Text>
             </View>
             <Button
               title={getTraduction('SUBSCRIBE')}
