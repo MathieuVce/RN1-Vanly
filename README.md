@@ -38,4 +38,8 @@ Start app on ios:
 # Eject expo
 
     yarn eject
+    
+# Deploy project
+
+    expo deploy
   
