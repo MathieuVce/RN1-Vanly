@@ -21,7 +21,7 @@ import { AppModelNavProps } from '../../roots/AppModelNav';
 
 type ILoginProps = AppModelNavProps<'Login'>;
 
-const porfilstyles = StyleSheet.create({
+const loginStyles = StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -33,19 +33,38 @@ const porfilstyles = StyleSheet.create({
     marginLeft: 30,
     marginTop: 30,
   },
+  viewFlag: {
+    position: 'absolute',
+    alignSelf: 'flex-end',
+    backgroundColor: '#99D3A6',
+    borderColor: '#FEC156',
+    borderWidth: 1,
+    borderRadius: 10,
+    width: 16 * 4,
+    height: 16 * 4.8,
+    right: 8,
+    top: -16 * 6.4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.53,
+    shadowRadius: 13.97,
+  },
   flagFr: {
     position: 'absolute',
-    width: 22,
-    height: 16,
-    right: 16 * 3,
-    top: -16 * 8,
+    width: 28,
+    height: 22,
+    right: 16 * 1.6,
+    top: -16 * 5.6,
   },
   flagUk: {
     position: 'absolute',
-    width: 22,
-    height: 16,
-    right: 16,
-    top: -16 * 8,
+    width: 28,
+    height: 22,
+    right: 16 * 1.6,
+    top: -16 * 3.6,
   },
   title: {
     fontSize: 45,
@@ -112,6 +131,8 @@ export const Login: React.FC<ILoginProps> = ({ navigation }) => {
     email: 'mathieu.vacance@epitech.eu',
     password: 'Motdepasse1@',
   });
+  const [showFlags, setFlags] = useState(false);
+  const [isFrench, setLang] = useState(true);
 
   const onSubmit = async () => {
     Keyboard.dismiss();
@@ -131,39 +152,53 @@ export const Login: React.FC<ILoginProps> = ({ navigation }) => {
   return (
     <ImageBackground
       source={require('../../assets/Login.png')}
-      style={porfilstyles.background}
+      style={loginStyles.background}
     >
-      <SafeAreaView style={porfilstyles.container}>
-        <View style={porfilstyles.header}>
-          <Text style={porfilstyles.title}>{getTraduction('TITLE')}</Text>
-          <Text style={porfilstyles.title}>{getTraduction('TITLE2')}</Text>
-          <TouchableOpacity onPress={() => {setAppLang('fr'); }} activeOpacity={0.6}>
+      <SafeAreaView style={loginStyles.container}>
+        <View style={loginStyles.header}>
+          <Text style={loginStyles.title}>{getTraduction('TITLE')}</Text>
+          <Text style={loginStyles.title}>{getTraduction('TITLE2')}</Text>
+          {!showFlags && (
+          <TouchableOpacity onPress={() => {setFlags(true); }} activeOpacity={0.6}>
             <Image
-              source={require('../../assets/fr.png')}
-              style={porfilstyles.flagFr}
+                source={isFrench ? require('../../assets/fr.png') : require('../../assets/uk.png')}
+              style={loginStyles.flagFr}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {setAppLang('en'); }} activeOpacity={0.6}>
-            <Image
-              source={require('../../assets/uk.png')}
-              style={porfilstyles.flagUk}
-            />
-          </TouchableOpacity>
+          )}
+          {showFlags && (
+            <View>
+              <View style={loginStyles.viewFlag}>
+              </View>
+              <TouchableOpacity onPress={() => {setAppLang(isFrench ? 'fr' : 'en'); setFlags(false); setLang(isFrench);}} activeOpacity={0.6}>
+                <Image
+                  source={isFrench ? require('../../assets/fr.png') : require('../../assets/uk.png')}
+                  style={loginStyles.flagFr}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {setAppLang(isFrench ? 'en' : 'fr'); setFlags(false); setLang(!isFrench);}} activeOpacity={0.6}>
+                <Image
+                  source={isFrench ? require('../../assets/uk.png') : require('../../assets/fr.png')}
+                  style={loginStyles.flagUk}
+                />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{ flex: 1 }}
         >
-          <View style={porfilstyles.content}>
+          <View style={loginStyles.content}>
             <TextInput
-              style={porfilstyles.input}
+              style={loginStyles.input}
               placeholder="contact@email.com"
               keyboardType="email-address"
               value={values.email}
               onChangeText={handleChange('email')}
             ></TextInput>
             <TextInput
-              style={porfilstyles.input}
+              style={loginStyles.input}
               placeholder="*******"
               secureTextEntry
               value={values.password}
@@ -171,18 +206,18 @@ export const Login: React.FC<ILoginProps> = ({ navigation }) => {
             ></TextInput>
           </View>
 
-          <View style={porfilstyles.footer}>
+          <View style={loginStyles.footer}>
             <TouchableOpacity
-              style={porfilstyles.buttonLogin}
+              style={loginStyles.buttonLogin}
               onPress={onSubmit}
             >
-              <Text style={porfilstyles.textButton}>{'→'}</Text>
+              <Text style={loginStyles.textButton}>{'→'}</Text>
             </TouchableOpacity>
           </View>
 
-          <View style={porfilstyles.footer}>
-            <View style={porfilstyles.centerText}>
-              <Text style={porfilstyles.subscribeText}>{getTraduction('NO_ACCOUNT')}</Text>
+          <View style={loginStyles.footer}>
+            <View style={loginStyles.centerText}>
+              <Text style={loginStyles.subscribeText}>{getTraduction('NO_ACCOUNT')}</Text>
             </View>
             <Button
               title={getTraduction('SUBSCRIBE')}

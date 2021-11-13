@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, Dimensions, Linking, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions, Linking, Platform, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { AntDesign, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
-import { WebView } from 'react-native-webview';
 
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { ClientContext } from '../contexts/ClientContext';
 
 interface IViewItemProps {
@@ -19,7 +17,7 @@ const itemStyles = StyleSheet.create({
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
+    paddingTop: 16,
     marginHorizontal: 16,
   },
   center: {
@@ -27,11 +25,12 @@ const itemStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
+    top: Dimensions.get('window').height / 4.3,
   },
   head: {
     flexDirection: 'row',
     width: '90%',
-    height: '30%',
+    height: '20%',
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
@@ -39,12 +38,23 @@ const itemStyles = StyleSheet.create({
     width: 16 * 3.3,
     height: 16 * 3.3,
     position: 'absolute',
-    bottom: 16 * 2.2,
+    bottom: 16 * 2,
     left: -3,
     backgroundColor: '#FFEECF',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 22,
+  },
+  gpsContainer: {
+    position: 'absolute',
+    top: 16,
+    right: 0,
+  },
+  gpsText: {
+    color: '#525566',
+    fontWeight: '700',
+    textDecorationLine: 'underline',
+    fontSize: 15,
   },
   name: {
     fontSize: 30,
@@ -57,12 +67,11 @@ const itemStyles = StyleSheet.create({
     height: '100%',
     borderRadius: 10,
   },
-  touchImage: {
+  imageContainer: {
     width: Dimensions.get('window').width - 16 * 4,
     height: 16 * 15,
     alignItems: 'center',
     borderWidth: 1,
-    borderStyle: 'dashed',
     borderRadius: 10,
     borderColor: '#525566',
   },
@@ -106,13 +115,12 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, image, setTmpSites, s
   const { getItems, setItems, client, getTraduction } = useContext(ClientContext);
   const [like, setLike] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [viewImage, setViewImage] = useState(false);
   const color = item.type == 'pointOfView' ? '#FEC156' : item.type == 'waterPoint' ? '#768AF8' : item.type == 'gazStation' ? '#B98888' : undefined;
 
   const addLike = async () => {
     const items = await setItems();
 
-    await items.doc(item.name).set({
+    await items.doc(item.previousName).set({
       ...item,
       likes: { likes: item.likes.likes + 1, names: item.likes.names.concat([client?.firstname]) },
     });
@@ -124,7 +132,7 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, image, setTmpSites, s
   const removeLike = async () => {
     const items = await setItems();
 
-    await items.doc(item.name).set({
+    await items.doc(item.previousName).set({
       ...item,
       likes: { likes: item.likes.likes - 1, names: item.likes.names.filter((elem: string) => elem !== client?.firstname ) },
     });
@@ -169,43 +177,43 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, image, setTmpSites, s
         {
           item.type == 'pointOfView' ?
             <View style={itemStyles.icon}>
-                <FontAwesome5 name='map-marker-alt' size={20} color='#FEC156'/>
+                <FontAwesome5 name='map-marker-alt' size={20} color={color}/>
             </View>
             : item.type == 'waterPoint' ?
               <View style={{ ...itemStyles.icon, backgroundColor: '#DAE0FF' }}>
-                <MaterialCommunityIcons name='water-off' size={20} color='#768AF8'/>
+                <MaterialCommunityIcons name='water-off' size={20} color={color}/>
               </View>
               : item.type == 'gazStation' ?
                 <View style={{ ...itemStyles.icon, backgroundColor: '#DEC3C3' }}>
-                  <FontAwesome5 name='car' size={20} color='#B98888'/>
+                  <FontAwesome5 name='car' size={20} color={color}/>
                 </View>
                 :
                 <View>
                 </View>
         }
-        <TouchableOpacity onPress={() => {openGps(item.coords.latitude, item.coords.longitude, item.name);}} activeOpacity={0.6}>
-          <Text style={itemStyles.name}>{item?.name}</Text>
+        <Text style={itemStyles.name}>{item?.name}</Text>
+        <TouchableOpacity style={itemStyles.gpsContainer} onPress={() => {openGps(item.coords.latitude, item.coords.longitude, item.name);}} activeOpacity={0.6}>
+          <Text style={itemStyles.gpsText}>{getTraduction('OPEN_GPS')}</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={itemStyles.touchImage} onPress={() => { }}>
+      <View style={itemStyles.imageContainer}>
         <Image style={itemStyles.image} source={{ uri : image }} onLoadStart={() => {setLoading(true); }} onLoadEnd={() => {setLoading(false); }}/>
-      </TouchableOpacity>
+      </View>
       <Text style={{ ...itemStyles.description, paddingHorizontal: 16, marginBottom: 16 }}>{item?.description}</Text>
-      <View style={itemStyles.creator}>
-        <Text style={itemStyles.description}>{getTraduction('BY')}</Text>
-        <Text style={itemStyles.create}>{item?.creator}</Text>
+      <View style={{ marginBottom : 16 * 10, alignSelf :'flex-start' }}>
+        <View style={itemStyles.creator}>
+          <Text style={itemStyles.description}>{getTraduction('BY')}</Text>
+          <Text style={itemStyles.create}>{item?.creator}</Text>
+        </View>
+        <View style={itemStyles.creator}>
+          { like ? 
+            <AntDesign name='like1' size={27} color={color} style={itemStyles.likeic} onPress={() => {setLike(!like); removeLike(); }}/>
+            :
+            <AntDesign name='like2' size={27} color='lightgrey' style={itemStyles.likeic} onPress={() => {setLike(!like); addLike(); }}/>
+          }
+          <Text style={{ ...itemStyles.like, color: color }}>{item?.likes.likes}</Text>
+        </View>
       </View>
-      <View style={itemStyles.creator}>
-        { like ? 
-          <AntDesign name='like1' size={27} color={color} style={itemStyles.likeic} onPress={() => {setLike(!like); removeLike(); }}/>
-          :
-          <AntDesign name='like2' size={27} color='lightgrey' style={itemStyles.likeic} onPress={() => {setLike(!like); addLike(); }}/>
-        }
-        <Text style={{ ...itemStyles.like, color: color }}>{item?.likes.likes}</Text>
-      </View>
-      {/* {viewImage && ( */}
-        {/* <WebView style={{ width: 16 * 15, height: 16 * 15, backgroundColor: 'black', padding: 16 * 25 }} source={{ uri : image }}/> */}
-      {/* )} */}
     </View>
   );
 };

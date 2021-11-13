@@ -92,9 +92,45 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, value
     return false;
   };
 
+  const handleUpload = async () => {
+    setIndex(2);
+    const items = await setItems();
+
+    await items.doc(values.name).set({
+      creator: client?.firstname,
+      description: values.description,
+      image: values.uri.split('/')[values.uri.split('/').length - 1],
+      likes: { likes: 0, names: [] },
+      name: values.name,
+      type: fieldValue.pointOfView ? 'pointOfView' : fieldValue.waterPoint ? 'waterPoint' : 'gazStation',
+      coords: createNewPoint,
+      previousName: values.name,
+    });
+
+    await setImage({ path: 'images/' + values.uri.split('/')[values.uri.split('/').length - 1], url: values.uri });
+    
+    setIndex(3);
+    
+    setTmpSites((await getItems()).docs.map((doc: { data: () => any; }) => doc.data()));
+
+    var start = new Date().getTime();
+    var end = 0;
+    var time = 0;
+    
+    while (time <= 1000) {
+      end = new Date().getTime();
+      time = end - start;
+    }
+
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setOpenNewPoint(false);
+    setIndex(0);
+    setValues({ name: undefined, description: undefined, uri: undefined });
+  };
+
   return (
     <View style={newPointFilterStyles.container}>
-      <Text style={newPointFilterStyles.headerTextFilter}>Choose a VanPoint type</Text>
+      <Text style={newPointFilterStyles.headerTextFilter}>{getTraduction('VANPOINT_TYPE')}</Text>
       <View style={newPointFilterStyles.middleContainer}>
           <Item name={getTraduction('POINT_OF_VIEW')} icon={ { name: 'map-marker', type: 'MaterialCommunityIcons' }} onPress={() => { 
             fieldValue.pointOfView = !fieldValue.pointOfView;
@@ -129,42 +165,7 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({ setIndex, value
           </TouchableOpacity>
         <TouchableOpacity
             style={newPointFilterStyles.button_right}
-            onPress={async () => {
-              setIndex(2);
-              const items = await setItems();
-
-              await items.doc(values.name).set({
-                creator: client?.firstname,
-                description: values.description,
-                image: values.uri.split('/')[values.uri.split('/').length - 1],
-                likes: { likes: 0, names: [] },
-                name: values.name,
-                type: fieldValue.pointOfView ? 'pointOfView' : fieldValue.waterPoint ? 'waterPoint' : 'gazStation',
-                coords: createNewPoint,
-                previousName: values.name,
-              });
-
-              setImage({ path: 'images/' + values.uri.split('/')[values.uri.split('/').length - 1], url: values.uri });
-              
-              setIndex(3);
-              
-              setTmpSites((await getItems()).docs.map((doc: { data: () => any; }) => doc.data()));
-
-              var start = new Date().getTime();
-              var end = 0;
-              var time = 0;
-              
-              while (time <= 1000) {
-               
-                end = new Date().getTime();
-                time = end - start;
-              }
-
-              await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-              setOpenNewPoint(false);
-              setIndex(0);
-              setValues({ name: '', description: '', uri: '' });
-            }}
+            onPress={handleUpload}
             disabled={disable()}
             activeOpacity={0.6}
           >

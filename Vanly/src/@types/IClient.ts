@@ -32,6 +32,13 @@ export interface IPhoto {
   url?: string;
 }
 
+export interface IProfil {
+  email?: string,
+  displayName?: string,
+  birthdate?: IDate,
+  uid?: string
+}
+
 export interface IDelete {
   name: string,
   path: string

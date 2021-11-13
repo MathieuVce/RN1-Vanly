@@ -120,16 +120,12 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
 
     setIndex(2);
 
-    if (values.uri.split('/')[values.uri.split('/').length - 1] !== item.image) {
-      deleteImage(item.image);
-    }
-
     const items = await setItems();
 
     await items.doc(item.previousName).set({
       creator: client?.firstname,
       description: values.description,
-      image: values.uri.split('/')[values.uri.split('/').length - 1],
+      image: values.uri.includes(item.image) ? item.image : values.uri.split('/')[values.uri.split('/').length - 1],
       likes: item.likes,
       name: values.name,
       type: item.type,
@@ -137,7 +133,10 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
       previousName: item.previousName,
     });
 
-    setImage({ path: 'images/' + values.uri.split('/')[values.uri.split('/').length - 1], url: values.uri });
+    if (values.uri.includes(item.image) == false) {
+      await deleteImage(item.image);
+      await setImage({ path: 'images/' + values.uri.split('/')[values.uri.split('/').length - 1], url: values.uri });
+    }
     
     setIndex(3);
 
@@ -155,7 +154,7 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setOpenNewPoint(false);
     setIndex(0);
-    setValues({ name: '', description: '', uri: '' });
+    setValues({ name: undefined, description: undefined, uri: undefined });
     setModifying(false);
   };
 
@@ -176,7 +175,7 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
     if (Platform.OS == 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ['Camera Roll', 'Camera', 'Cancel'],
+          options: ['Camera Roll', 'Camera', getTraduction('CANCEL')],
           destructiveButtonIndex: 2,
           cancelButtonIndex: 2,
         },
@@ -187,7 +186,7 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
       );
     } else if (Platform.OS == 'android') {
       Alert.alert(
-        'Que souhaitez-vous faire ?',
+        getTraduction('SELECT_PICTURE'),
         '',
         [
           { text: 'Camera Roll', onPress: async () => {
@@ -199,7 +198,7 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
           },
           },
           {
-            text: 'RETOUR',
+            text: getTraduction('CANCEL'),
             onPress: () => {
             },
             style: 'cancel',
@@ -218,7 +217,7 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
       }
       <View style={newPointStyles.middleContainer}>
         <View style={newPointStyles.input}>
-            <TextInput style={newPointStyles.inputName} value={values.name} onChangeText={(value: string) => {setValues({ ...values, name: value }); }} placeholder={getTraduction('INPUT_NAME')} placeholderTextColor='grey' />
+            <TextInput style={newPointStyles.inputName} value={values.name} maxLength={30} onChangeText={(value: string) => {setValues({ ...values, name: value }); }} placeholder={getTraduction('INPUT_NAME')} placeholderTextColor='grey' />
             <TextInput style={newPointStyles.inputDescription} value={values.description} onChangeText={(value: string) => {setValues({ ...values, description: value }); }} placeholder={getTraduction('INPUT_DESCRIPTION')} placeholderTextColor='grey' />
         </View>
         <TouchableOpacity style={newPointStyles.imageContainer} onPress={addPicture}>

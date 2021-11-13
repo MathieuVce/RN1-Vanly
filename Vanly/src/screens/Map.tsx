@@ -121,7 +121,7 @@ export const Map: React.FC<IMapProps> = () => {
   const [openNewPoint, setOpenNewPoint] = useState(false);
   const [mapRef, setMapRef] = useState<MapView | null>();
   const [region, setRegion] = useState<IRegion>({ latitude: 0, longitude: 0, latitudeDelta: 0, longitudeDelta: 0 });
-  const [values, setValues] = useState({ name: '', description: '', uri: undefined });
+  const [values, setValues] = useState({ name: undefined, description: undefined, uri: undefined });
   const [iconSize, setIconSize] = useState({ 'width': 42, 'height': 50 });
 
   const getSites = async () => {
@@ -134,7 +134,7 @@ export const Map: React.FC<IMapProps> = () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
       Alerts.warning({
-        title: 'We need your permission to proceed',
+        title: getTraduction('ALERT_PERMISSIONS_TITLE'),
         message: '',
       });
       return;
@@ -158,7 +158,8 @@ export const Map: React.FC<IMapProps> = () => {
     }));
   };
 
-  const onRegionChange = async () => {
+  const onRegionChange = async (locate: React.SetStateAction<IRegion>) => {
+    setRegion(locate);
     if (mapRef) {
       try {
         const camera = await mapRef.getCamera();
@@ -183,11 +184,11 @@ export const Map: React.FC<IMapProps> = () => {
   const handleDelete = async (doc: any) => {
     deleteItem({ name: doc.name, path: doc.image });
     Alerts.success({
-      title: 'Vanpoint deleted',
+      title: getTraduction('ALERT_DELETED_TITLE'),
       message: '',
     });
     setIndex(0);
-    setValues({ name: '', description: '', uri: undefined });
+    setValues({ name: undefined, description: undefined, uri: undefined });
     setModifying(false);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   };
@@ -208,7 +209,7 @@ export const Map: React.FC<IMapProps> = () => {
         showsUserLocation={true}
         customMapStyle={mapStyle}
         onLongPress={(e) => { setCreateNewPoint(e.nativeEvent.coordinate); setOpenNewPoint(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); }}
-        onRegionChange={onRegionChange}
+        onRegionChangeComplete={onRegionChange}
         maxZoomLevel={15}
         >
           { tmpSites?.map((doc, k) => {
@@ -283,7 +284,7 @@ export const Map: React.FC<IMapProps> = () => {
         <ViewItem item={item} image={image} setTmpSites={setTmpSites} setItem={setItem} />
       </ModalE>
 
-      <ModalE button={isModifying ? getTraduction('DELETE') : undefined} buttonColor={'#0B5F1E'} onApply={() => {handleDelete(item); }} isOpen={openNewPoint} setIsOpen={setOpenNewPoint} height={16 * 3} close={() => { setIndex(0); setValues({ name: '', description: '', uri: undefined }); setModifying(false); }}>
+      <ModalE button={isModifying ? getTraduction('DELETE') : undefined} buttonColor={'#0B5F1E'} onApply={() => {handleDelete(item); setValues({ name: undefined, description: undefined, uri: undefined }); setModifying(false); }} isOpen={openNewPoint} setIsOpen={setOpenNewPoint} height={16 * 3} close={() => { setIndex(0); setValues({ name: undefined, description: undefined, uri: undefined }); setModifying(false); }}>
           { index == 0 ?
             <VanPoint setIndex={setIndex} setValues={setValues} values={values} modify={isModifying}  setModifying={setModifying} setOpenNewPoint={setOpenNewPoint} item={item} setTmpSites={setTmpSites}/>  
             : index == 1 ?

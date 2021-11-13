@@ -4,8 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 
 import firebase from '../database/firebase';
-import { IAuth, IClient, IPhoto, IRegisterClient, IReset } from '../@types/IClient';
-import { defaultClientValue, IClientContext, TDeleteImageFC, TDeleteItemFC, TGetImageFC, TGetItemsFC, TGetTraductionFC, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TSetAppLangFC, TSetImageFC, TSetItemsFC, TSleepFC, TTakePictureFC, TUpdatePictureFC, TUploadPictureFC } from '../@types/IClientContext';
+import { IAuth, IClient, IPhoto, IProfil, IRegisterClient, IReset } from '../@types/IClient';
+import { defaultClientValue, IClientContext, TDeleteImageFC, TDeleteItemFC, TGetAppLangFC, TGetImageFC, TGetItemsFC, TGetTraductionFC, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TSetAppLangFC, TSetImageFC, TSetItemsFC, TSleepFC, TTakePictureFC, TUpdatePictureFC, TUpdateProfilFC, TUploadPictureFC } from '../@types/IClientContext';
 import { AlertContext } from './AlertContext';
 import fr from '../traduction/fr.json';
 import en from '../traduction/en.json';
@@ -31,6 +31,10 @@ export const ClientProvider: React.FC = ({ children }) => {
       : null;
   };
 
+  const getTraduction: TGetTraductionFC = (keyWord) => {
+    return data[lang][keyWord];
+  };
+
   const login: TLoginFC = async (payload: IAuth) => {
     await firebase
       .auth()
@@ -49,8 +53,8 @@ export const ClientProvider: React.FC = ({ children }) => {
           await AsyncStorage.setItem('user', JSON.stringify({ email: payload.email, password: payload.password, firstname: finalUser[0]?.displayName, picture: finalUser[0]?.photoURL ? finalUser[0]?.photoURL : 'nonull', birthdate: finalUser[0]?.birthdate }));
           
           Alerts.success({
-            title: 'Successful authentication',
-            message: `Welcome back ${finalUser[0]?.displayName} !`,
+            title: getTraduction('ALERT_LOGIN_TITLE'),
+            message: getTraduction('ALERT_LOGIN_MESSAGE') + ` ${finalUser[0]?.displayName} !`,
           });
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
@@ -80,8 +84,8 @@ export const ClientProvider: React.FC = ({ children }) => {
         const tmpUser = await getUser();
 
         if (tmpUser) {
-          firebase.firestore().collection('usersCollection')
-            .add({
+          firebase.firestore().collection('usersCollection').doc(tmpUser.uid)
+            .set({
               email: tmpUser.email,
               birthdate: payload.birthdate,
               displayName: payload.name,
@@ -89,7 +93,7 @@ export const ClientProvider: React.FC = ({ children }) => {
             });
         }
         Alerts.success({
-          title: 'Successful Registration',
+          title: getTraduction('ALERT_REGISTER_TITLE'),
           message: '',
         });
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -110,11 +114,11 @@ export const ClientProvider: React.FC = ({ children }) => {
       .then(async () => {
         setUser(null);
         await AsyncStorage.removeItem('user');
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
         Alerts.success({
-          title: 'See you soon !',
+          title: getTraduction('ALERT_LOGOUT_TITLE'),
           message: '',
         });
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       })
       .catch(error => {
         Alerts.warning({
@@ -122,6 +126,39 @@ export const ClientProvider: React.FC = ({ children }) => {
           message: '',
         });
       });
+  };
+  const updateProfil: TUpdateProfilFC = async (payload: IProfil) => {
+    const tmpUser = await getUser();
+    let values: IProfil = {};
+
+    if (tmpUser) {
+      try {
+
+        await tmpUser.updateEmail(payload.email);
+        (await firebase.firestore().collection('Sites').get()).docs.map(async doc => {
+          if (doc.data().creator == user?.firstname) {
+            await firebase.firestore().collection('Sites').doc(doc.data().previousName).set({
+              ...doc.data(), creator: payload.displayName,
+            });
+          }
+        });
+        (await firebase.firestore().collection('usersCollection').get()).docs.map(doc => {
+          if (doc.data().uid == tmpUser.uid) {
+            values = doc.data();
+          }
+        });
+        await firebase.firestore().collection('usersCollection').doc(tmpUser.uid).set({
+          ...values, email: payload.email, displayName: payload.displayName, birthdate: payload.birthdate,
+        });
+        setUser({ ...user, email: payload.email!, 'firstname': payload.displayName, birthdate: payload.birthdate });
+        const userStorage = await AsyncStorage.getItem('user');
+        await AsyncStorage.setItem('user', JSON.stringify({ ...JSON.parse(userStorage!), email: payload.email!, firstname: payload.displayName, birthdate: payload.birthdate }));
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        return null;
+      } catch (error) {
+        return error;
+      }
+    }
   };
 
   const takepicture: TTakePictureFC = async () => {
@@ -188,7 +225,6 @@ export const ClientProvider: React.FC = ({ children }) => {
   };
 
   const deleteItem: TDeleteItemFC = async (payload) => {
-    console.log(payload.path);
     await firebase.firestore().collection('Sites').doc(payload.name).delete();
     await firebase.storage().ref().child('images/' + payload.path).delete();
   };
@@ -201,8 +237,8 @@ export const ClientProvider: React.FC = ({ children }) => {
     setLang(language);
   };
 
-  const getTraduction: TGetTraductionFC = (keyWord) => {
-    return data[lang][keyWord];
+  const getAppLang: TGetAppLangFC = async () => {
+    return (lang);
   };
 
   const resetpassword: TResetPasswordFC = async (payload: IReset) => {
@@ -211,8 +247,8 @@ export const ClientProvider: React.FC = ({ children }) => {
       .sendPasswordResetEmail(payload.email)
       .then(() => {
         Alerts.success({
-          title: 'Email succesfully sent',
-          message: 'Open your recent mail to reset your password',
+          title: getTraduction('ALERT_PASSWORD_TITLE'),
+          message: getTraduction('ALERT_PASSWORD_MESSAGE'),
         });
       })
       .catch(error => {
@@ -232,8 +268,8 @@ export const ClientProvider: React.FC = ({ children }) => {
   return (
     <ClientContext.Provider value={{
       client: user,
-      sleep, getTraduction, setAppLang,
-      autolog, login, register, logout, resetpassword,
+      sleep, getTraduction, setAppLang, getAppLang,
+      autolog, login, register, logout, resetpassword, updateProfil,
       uploadpicture, takepicture, updatePicture, getImage, setImage,
       getUser, getItems, setItems, deleteItem, deleteImage,
     }}
