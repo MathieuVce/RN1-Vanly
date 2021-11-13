@@ -308,15 +308,3 @@ export const Map: React.FC<IMapProps> = () => {
     </View>
   );
 };
-
-
-/*
-<fr-FR>
-Votre application au grand public !
-Modifiez votre profil comme bon vous semble,
-Choisissez votre langue préférée entre l'anglais et le français,
-Modifiez à votre guise vos Vanpoints.
-Laissez-vous guider grâce à google maps !
-Voyagez dès maintenant avec Vanly et partagez vos Vanpoints favoris à notre communauté.
-</fr-FR>
-*/
