@@ -39,7 +39,7 @@ Start app on ios:
 
     yarn eject
     
-# Deploy project
+# Build project
 
-    expo deploy
+    expo build:android -t app-bundle
   
