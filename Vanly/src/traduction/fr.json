@@ -34,6 +34,8 @@
     "MODIFY": "Modifier",
     "SAVE": "Enregistrer",
     "BY": "par ",
+    "RESET_PWD": "Réinitialiser le mot de passe",
+    "FORGOTTEN_PWD": "Mot de passe oublié?",
     "ALERT_LOGIN_TITLE": "Authentification réussie !",
     "ALERT_LOGIN_MESSAGE": "Bienvenue",
     "ALERT_REGISTER_TITLE": "Création de compte réussie !",

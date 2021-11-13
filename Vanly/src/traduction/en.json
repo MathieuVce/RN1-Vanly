@@ -34,6 +34,8 @@
     "MODIFY": "Modify",
     "SAVE": "Save",
     "BY": "by ",
+    "RESET_PWD": "Reset password",
+    "FORGOTTEN_PWD": "Forgotten password?",
     "ALERT_LOGIN_TITLE": "Successful authentication !",
     "ALERT_LOGIN_MESSAGE": "Welcome back !",
     "ALERT_REGISTER_TITLE": "Successful Registration !",

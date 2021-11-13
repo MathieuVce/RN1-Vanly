@@ -345,7 +345,7 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
 
     if (!emailRegex.test(String(values.email).toLowerCase())) {
       Alert.alert(
-        getTraduction('ALERT_BIRTHDATE_FORMAT'),
+        getTraduction('ALERT_EMAIL'),
         '',
         [
           {
@@ -375,7 +375,7 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
     }
     if (!birthdateRegex.test(String(finlaDate))) {
       Alert.alert(
-        getTraduction('ALERT_EMAIL'),
+        getTraduction('ALERT_BIRTHDATE_FORMAT'),
         '',
         [
           {

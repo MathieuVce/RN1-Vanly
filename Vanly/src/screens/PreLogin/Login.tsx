@@ -84,6 +84,24 @@ const loginStyles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
   },
+  subscribe: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    flexDirection: 'row',
+    width: '90%',
+    borderRadius: 10,
+    backgroundColor: '#FEC156',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.53,
+    shadowRadius: 13.97,
+
+    elevation: 21,
+  },
   input: {
     textAlign: 'left',
     fontSize: 20,
@@ -98,6 +116,7 @@ const loginStyles = StyleSheet.create({
   },
   subscribeText: {
     fontSize: 16,
+    color: 'white',
   },
   buttonLogin: {
     height: 64,
@@ -122,14 +141,19 @@ const loginStyles = StyleSheet.create({
     color: 'white',
     fontWeight: '900',
   },
+  resetPwd: {
+    width: '100%',
+    alignItems: 'flex-end',
+    fontSize: 8,
+  },
 });
 
 export const Login: React.FC<ILoginProps> = ({ navigation }) => {
   const { login, getTraduction, setAppLang } = useContext(ClientContext);
 
   const [values, setValues] = useState<IAuth>({
-    email: 'mathieu.vacance@epitech.eu',
-    password: 'Motdepasse1@',
+    email: '',
+    password: '',
   });
   const [showFlags, setFlags] = useState(false);
   const [isFrench, setLang] = useState(true);
@@ -161,7 +185,7 @@ export const Login: React.FC<ILoginProps> = ({ navigation }) => {
           {!showFlags && (
           <TouchableOpacity onPress={() => {setFlags(true); }} activeOpacity={0.6}>
             <Image
-                source={isFrench ? require('../../assets/fr.png') : require('../../assets/uk.png')}
+              source={isFrench ? require('../../assets/fr.png') : require('../../assets/uk.png')}
               style={loginStyles.flagFr}
             />
           </TouchableOpacity>
@@ -204,6 +228,12 @@ export const Login: React.FC<ILoginProps> = ({ navigation }) => {
               value={values.password}
               onChangeText={handleChange('password')}
             ></TextInput>
+            <View style={loginStyles.resetPwd}>
+              <Button
+                title={getTraduction('FORGOTTEN_PWD')}
+                onPress={() => navigation.navigate('ForgottenPassword')}
+            />
+            </View>
           </View>
 
           <View style={loginStyles.footer}>
@@ -215,7 +245,7 @@ export const Login: React.FC<ILoginProps> = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          <View style={loginStyles.footer}>
+          <View style={{ ...loginStyles.subscribe }}>
             <View style={loginStyles.centerText}>
               <Text style={loginStyles.subscribeText}>{getTraduction('NO_ACCOUNT')}</Text>
             </View>
