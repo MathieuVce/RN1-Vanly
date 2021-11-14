@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
+
 # RN1-Vanly
 React Native 1 Epitech Module
 
@@ -6,7 +8,8 @@ Create fabulous spots for the travelers community.
 # Links
 
 **Expo App:**
-  [Vanly](exp://exp.host/@mathieuv/Vanly)
+  [exp://exp.host/@mathieuv/Vanly](exp://exp.host/@mathieuv/Vanly)
+
 **PlayStore:**
   [Vanly](https://play.google.com/store/apps/details?id=com.vanly.vanly)
 
