@@ -146,6 +146,13 @@ const loginStyles = StyleSheet.create({
     alignItems: 'flex-end',
     fontSize: 8,
   },
+  register: {
+    fontSize: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    fontWeight: '400',
+    textDecorationLine: 'underline',
+  },
 });
 
 export const Login: React.FC<ILoginProps> = ({ navigation }) => {
@@ -249,10 +256,9 @@ export const Login: React.FC<ILoginProps> = ({ navigation }) => {
             <View style={loginStyles.centerText}>
               <Text style={loginStyles.subscribeText}>{getTraduction('NO_ACCOUNT')}</Text>
             </View>
-            <Button
-              title={getTraduction('SUBSCRIBE')}
-              onPress={() => navigation.navigate('Register')}
-            />
+            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+              <Text style={loginStyles.register}>{getTraduction('SUBSCRIBE')}</Text>
+            </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>

@@ -10,6 +10,7 @@ import * as Haptics from 'expo-haptics';
 
 import { ClientContext } from '../contexts/ClientContext';
 import { Item } from '../components/Filters';
+import { AlertContext } from '../contexts/AlertContext';
 
 interface IVanPointFilterProps {
   setIndex: React.Dispatch<React.SetStateAction<number>>;
@@ -94,9 +95,9 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({
   setTmpSites,
   setValues,
 }) => {
-  const { client, setImage, getItems, setItems, getTraduction } =
-    useContext(ClientContext);
-
+  const { client, setImage, getItems, setItems, getTraduction } = useContext(ClientContext);
+  const { Alerts } = useContext(AlertContext);
+ 
   const [type, setType] = useState<'pointOfView' | 'waterPoint' | 'gazStation' | undefined>(undefined);
 
   const disable = () => {
@@ -107,20 +108,27 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({
 
   const handleUpload = async () => {
     setIndex(2);
-    const items = await setItems();
-
-    await items.doc(values.name).set({
-      creator: client?.firstname,
-      description: values.description,
-      image: values.uri.split('/')[values.uri.split('/').length - 1],
-      likes: { likes: 0, names: [] },
-      name: values.name,
-      type: type,
-      coords: createNewPoint,
-      previousName: values.name,
-    });
-
-    await setImage({ path: 'images/' + values.uri.split('/')[values.uri.split('/').length - 1], url: values.uri });
+    try {
+      const items = await setItems();
+  
+      await items.doc(values.name).set({
+        creator: client?.firstname,
+        description: values.description,
+        image: values.uri.split('/')[values.uri.split('/').length - 1],
+        likes: { likes: 0, names: [] },
+        name: values.name,
+        type: type,
+        coords: createNewPoint,
+        previousName: values.name,
+      });
+  
+      await setImage({ path: 'images/' + values.uri.split('/')[values.uri.split('/').length - 1], url: values.uri });
+    } catch (error) {
+      Alerts.warning({
+        title: getTraduction('ALERT_ERROR_IMG'),
+        message: '',
+      });
+    }
     
     setIndex(3);
     

@@ -25,11 +25,18 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.vanly.vanly",
-      "permissions" : ["CAMERA", "ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION", "READ_EXTERNAL_STORAGE"],
-      "versionCode": 4
+      "permissions": [
+        "CAMERA",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "READ_EXTERNAL_STORAGE"
+      ],
+      "versionCode": 5
     },
     "web": {
       "favicon": "./assets/ic.png"
-    }
+    },
+    "description": "Create fabulous spots for the travelers community.",
+    "githubUrl": "https://github.com/MathieuVce/RN1-Vanly"
   }
 }

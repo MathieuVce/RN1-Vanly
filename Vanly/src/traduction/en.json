@@ -48,5 +48,6 @@
     "ALERT_FILL_EMPTY": "Please fill in all informations below",
     "ALERT_EMAIL": "The email address is badly formated",
     "ALERT_BIRTHDATE_FORMAT": "Birthdate is badly formated",
-    "ALERT_BIRTHDATE_VALUES": "Birthdate must be below the actual date"
+    "ALERT_BIRTHDATE_VALUES": "Birthdate must be below the actual date",
+    "ALERT_ERROR_IMG": "The upload of the image fails because of the databse"
   }

@@ -4,6 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Haptics from 'expo-haptics';
 
 import { ClientContext } from '../contexts/ClientContext';
+import { AlertContext } from '../contexts/AlertContext';
 
 interface IVanPointProps {
   setIndex: React.Dispatch<React.SetStateAction<number>>
@@ -98,6 +99,7 @@ const newPointStyles = StyleSheet.create({
 export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values, modify, setOpenNewPoint, item, setTmpSites, setModifying }) => {
 
   const { uploadpicture, takepicture, setItems, client, setImage, getItems, deleteImage, getTraduction } = useContext(ClientContext);
+  const { Alerts } = useContext(AlertContext);
 
   const [loading, setLoading] = useState(true);
 
@@ -120,22 +122,29 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
 
     setIndex(2);
 
-    const items = await setItems();
+    try {
+      const items = await setItems();
 
-    await items.doc(item.previousName).set({
-      creator: client?.firstname,
-      description: values.description,
-      image: values.uri.includes(item.image) ? item.image : values.uri.split('/')[values.uri.split('/').length - 1],
-      likes: item.likes,
-      name: values.name,
-      type: item.type,
-      coords: item.coords,
-      previousName: item.previousName,
-    });
+      await items.doc(item.previousName).set({
+        creator: client?.firstname,
+        description: values.description,
+        image: values.uri.includes(item.image) ? item.image : values.uri.split('/')[values.uri.split('/').length - 1],
+        likes: item.likes,
+        name: values.name,
+        type: item.type,
+        coords: item.coords,
+        previousName: item.previousName,
+      });
 
-    if (values.uri.includes(item.image) == false) {
-      await deleteImage(item.image);
-      await setImage({ path: 'images/' + values.uri.split('/')[values.uri.split('/').length - 1], url: values.uri });
+      if (values.uri.includes(item.image) == false) {
+        await deleteImage(item.image);
+        await setImage({ path: 'images/' + values.uri.split('/')[values.uri.split('/').length - 1], url: values.uri });
+      }
+    } catch (error) {
+      Alerts.warning({
+        title: getTraduction('ALERT_ERROR_IMG'),
+        message: '',
+      });
     }
     
     setIndex(3);

@@ -187,32 +187,36 @@ export const ClientProvider: React.FC = ({ children }) => {
     var tmpUser = firebase.auth().currentUser;
     tmpUser?.updateProfile({  photoURL: payload.path.split('/')[1] });
 
+    const blob = await (await fetch(payload.url!)).blob();
     const ref = firebase
       .storage()
       .ref()
       .child(payload.path);
-
-    const blob = await (await fetch(payload.url!)).blob();
     await ref.put(blob);
   };
 
   const setImage: TSetImageFC = async (payload: IPhoto) => {
+  
+    const blob = await (await fetch(payload.url!)).blob();
     const ref = firebase
       .storage()
       .ref()
       .child(payload.path);
 
-    const blob = await (await fetch(payload.url!)).blob();
     await ref.put(blob);
   };
 
   const getImage: TGetImageFC = async (payload: IPhoto) => {
-    var url = '';
-
-    const img = firebase.storage().ref().child(payload.path).child(payload.url!);
-    await img.getDownloadURL().then((uri) => { url = uri; });
-
-    return url;
+    try {
+      var url = '';
+  
+      const img = firebase.storage().ref().child(payload.path).child(payload.url!);
+      await img.getDownloadURL().then((uri) => { url = uri; });
+  
+      return url;
+    } catch (error) {
+      return 'https://static.thenounproject.com/png/1496955-200.png';
+    }
   };
 
   const getItems: TGetItemsFC = async () => {

@@ -117,10 +117,10 @@ export const Map: React.FC<IMapProps> = () => {
   const [fieldValue] = useState({ 'pointOfView': true, 'waterPoint': true, 'gazStation': true });
   const [item, setItem] = useState<any>();
   const [image, setImage] = useState<string>();
-  const [createNewPoint, setCreateNewPoint] = useState({ 'latitude': 0, 'longitude': 0 });
+  const [createNewPoint, setCreateNewPoint] = useState({ 'latitude': undefined, 'longitude': undefined });
   const [openNewPoint, setOpenNewPoint] = useState(false);
   const [mapRef, setMapRef] = useState<MapView | null>();
-  const [region, setRegion] = useState<IRegion>({ latitude: 0, longitude: 0, latitudeDelta: 0, longitudeDelta: 0 });
+  const [region, setRegion] = useState<IRegion>({ latitude: 48.9, longitude: 2.3, latitudeDelta: 0, longitudeDelta: 0 });
   const [values, setValues] = useState({ name: undefined, description: undefined, uri: undefined });
   const [iconSize, setIconSize] = useState({ 'width': 42, 'height': 50 });
 
