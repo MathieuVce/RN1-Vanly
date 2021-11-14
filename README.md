@@ -54,7 +54,7 @@ Start app on ios:
     expo build:android -t app-bundle
 
 # Deploy
-See images in ./Vanly/Deploy folder
+See images in ./Deploy folder
 
 **PlayStore**
 - After building your project on expo's servers download your .aab file to your computer
