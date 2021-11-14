@@ -1,1 +1,5 @@
-node_modules/*
+./Vanly/node_modules/
+./Vanly/.expo
+./Vanly/.expo-shared
+./Vanly/.DS_Store
+./Vanly/.vscode
