@@ -7,6 +7,7 @@ Create fabulous spots for the travelers community.
 
 **Expo App:**
   [Vanly](exp://exp.host/@mathieuv/Vanly)
+
 **PlayStore:**
   [Vanly](https://play.google.com/store/apps/details?id=com.vanly.vanly)
 
