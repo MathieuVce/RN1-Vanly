@@ -197,12 +197,9 @@ export const ClientProvider: React.FC = ({ children }) => {
 
   const setImage: TSetImageFC = async (payload: IPhoto) => {
   
-    const blob = await (await fetch(payload.url!)).blob();
-    const ref = firebase
-      .storage()
-      .ref()
-      .child(payload.path);
+    const ref = firebase.storage().ref().child(payload.path);
 
+    const blob = await (await fetch(payload.url!)).blob();
     await ref.put(blob);
   };
 
@@ -211,7 +208,7 @@ export const ClientProvider: React.FC = ({ children }) => {
       var url = '';
   
       const img = firebase.storage().ref().child(payload.path).child(payload.url!);
-      await img.getDownloadURL().then((uri) => { url = uri; });
+      await img.getDownloadURL().then((uri: string) => { url = uri; });
   
       return url;
     } catch (error) {

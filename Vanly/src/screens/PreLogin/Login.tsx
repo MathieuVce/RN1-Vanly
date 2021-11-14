@@ -13,6 +13,7 @@ import {
   Platform,
   Image,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 
 import { IAuth } from '../../@types/IClient';
 import { ClientContext } from '../../contexts/ClientContext';
@@ -108,7 +109,14 @@ const loginStyles = StyleSheet.create({
     color: 'white',
     fontWeight: '700',
     marginVertical: 16,
-    width: '100%',
+    width: '88%',
+  },
+  eye: {
+    height: 16 * 2,
+    width: 16 * 2,
+    color: 'grey',
+    left: 16 * 18.5,
+    bottom: 16 * 2.3,
   },
   centerText: {
     justifyContent: 'center',
@@ -157,6 +165,7 @@ const loginStyles = StyleSheet.create({
 
 export const Login: React.FC<ILoginProps> = ({ navigation }) => {
   const { login, getTraduction, setAppLang } = useContext(ClientContext);
+  const [eye, setEye] = useState(true);
 
   const [values, setValues] = useState<IAuth>({
     email: '',
@@ -231,10 +240,17 @@ export const Login: React.FC<ILoginProps> = ({ navigation }) => {
             <TextInput
               style={loginStyles.input}
               placeholder="*******"
-              secureTextEntry
+              secureTextEntry={eye}
               value={values.password}
               onChangeText={handleChange('password')}
             ></TextInput>
+            {
+                eye ? (
+                    <Feather name="eye" size={22} color="#222" onPress={() => {setEye(!eye);}} style={ loginStyles.eye }/>
+                ) : (
+                    <Feather name="eye-off" size={22} color="#222" onPress={() => {setEye(!eye);}} style={ loginStyles.eye }/>
+                )
+            }
             <View style={loginStyles.resetPwd}>
               <Button
                 title={getTraduction('FORGOTTEN_PWD')}
