@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, Dimensions, Linking, Platform, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions, Linking, Platform, ActivityIndicator, TouchableOpacity, NativeSyntheticEvent } from 'react-native';
 import { AntDesign, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { ClientContext } from '../contexts/ClientContext';

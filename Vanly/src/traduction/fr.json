@@ -49,5 +49,5 @@
     "ALERT_EMAIL": "L'adresse e-mail est mal formatée",
     "ALERT_BIRTHDATE_FORMAT": "La date de naissance est mal formatée",
     "ALERT_BIRTHDATE_VALUES": "La date de naissance doit être inférieure à la date d'aujourdhui",
-    "ALERT_ERROR_IMG": "Le chargement de l'image en base de données à échoué"
+    "ALERT_ERROR_IMG": "Le chargement de l'image en base de données à échoué" 
   }

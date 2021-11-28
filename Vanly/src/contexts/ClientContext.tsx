@@ -138,9 +138,14 @@ export const ClientProvider: React.FC = ({ children }) => {
         (await firebase.firestore().collection('Sites').get()).docs.map(async doc => {
           if (doc.data().creator == user?.firstname) {
             await firebase.firestore().collection('Sites').doc(doc.data().previousName).set({
-              ...doc.data(), creator: payload.displayName,
+              ...doc.data(),
+              creator: payload.displayName,
             });
           }
+          await firebase.firestore().collection('Sites').doc(doc.data().previousName).set({
+            ...doc.data(),
+            likes: { likes: doc.data().likes.likes, names: doc.data().likes.names.filter((elem: string) => elem !== user?.firstname).concat([ payload.displayName]) },
+          });
         });
         (await firebase.firestore().collection('usersCollection').get()).docs.map(doc => {
           if (doc.data().uid == tmpUser.uid) {

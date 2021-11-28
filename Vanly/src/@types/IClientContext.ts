@@ -31,7 +31,7 @@ export type TGetUserFC = () => Promise<any>;
 export type TGetItemsFC = () => Promise<any>;
 export type TSetItemsFC = () => Promise<any>;
 export type TGetAppLangFC = () => Promise<any>;
-export type TTakePictureFC = () => Promise<any>;
+export type TTakePictureFC = () => Promise<any>; 
 export type TUploadPictureFC = () => Promise<any>;
 export type TSleepFC = (ms: number) => Promise<any>;
 export type TLoginFC = (payload: IAuth) => Promise<any>;
