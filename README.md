@@ -23,6 +23,9 @@ For more information you can check those websites:
   https://docs.expo.dev/guides/using-firebase/
 
   https://firebase.google.com/docs
+  
+  https://docs.expo.dev/build/introduction/
+  eas-cli/0.52.0 darwin-arm64 node-v16.4.1
 
 # Install dependencies
 
@@ -51,7 +54,8 @@ Start app on ios:
     
 # Build project
 
-    expo build:android -t app-bundle
+    expo build:android -t app-bundle [OLD]
+    eas build -p android
 
 # Deploy
 See images in ./Deploy folder
