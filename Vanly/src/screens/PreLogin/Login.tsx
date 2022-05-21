@@ -164,7 +164,7 @@ const loginStyles = StyleSheet.create({
 });
 
 export const Login: React.FC<ILoginProps> = ({ navigation }) => {
-  const { login, getTraduction, setAppLang } = useContext(ClientContext);
+  const { login, getTraduction, setAppLang } = useContext(ClientContext); 
   const [eye, setEye] = useState(true);
 
   const [values, setValues] = useState<IAuth>({
