@@ -11,6 +11,7 @@ import * as Haptics from 'expo-haptics';
 import { ClientContext } from '../contexts/ClientContext';
 import { Item } from '../components/Filters';
 import { AlertContext } from '../contexts/AlertContext';
+import { setDoc } from 'firebase/firestore';
 
 interface IVanPointFilterProps {
   setIndex: React.Dispatch<React.SetStateAction<number>>;
@@ -109,9 +110,9 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({
   const handleUpload = async () => {
     setIndex(2);
     try {
-      const items = await setItems();
-  
-      await items.doc(values.name).set({
+      const items = await setItems({ name: values.name});
+
+      await setDoc(items, {
         creator: client?.firstname,
         description: values.description,
         image: values.uri.split('/')[values.uri.split('/').length - 1],
@@ -124,6 +125,7 @@ export const VanPointFilter: React.FC<IVanPointFilterProps> = ({
   
       await setImage({ path: 'images/' + values.uri.split('/')[values.uri.split('/').length - 1], url: values.uri });
     } catch (error) {
+      console.log(error);
       Alerts.warning({
         title: getTraduction('ALERT_ERROR_IMG'),
         message: '',

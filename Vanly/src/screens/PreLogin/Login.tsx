@@ -226,7 +226,7 @@ export const Login: React.FC<ILoginProps> = ({ navigation }) => {
           )}
         </View>
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={Platform.OS === 'ios' ? undefined : 'height'}
           style={{ flex: 1 }}
         >
           <View style={loginStyles.content}>

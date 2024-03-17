@@ -1,19 +1,25 @@
-import React, { createContext, useContext, useState } from 'react';
+import React from 'react';
+import { createContext, useContext, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 
-import firebase from '../database/firebase';
 import { IAuth, IClient, IPhoto, IProfil, IRegisterClient, IReset } from '../@types/IClient';
-import { defaultClientValue, IClientContext, TDeleteImageFC, TDeleteItemFC, TGetAppLangFC, TGetImageFC, TGetItemsFC, TGetTraductionFC, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TSetAppLangFC, TSetImageFC, TSetItemsFC, TSleepFC, TTakePictureFC, TUpdatePictureFC, TUpdateProfilFC, TUploadPictureFC } from '../@types/IClientContext';
+import { defaultClientValue, IClientContext, TDeleteImageFC, TDeleteItemFC, TGetAppLangFC, TGetImageFC, TGetItemsFC, TGetTraductionFC, TGetUserFC, TLoginFC, TLogoutFC, TRegisterFC, TResetPasswordFC, TSetAppLangFC, TSetImageFC, TSetItemsFC, TTakePictureFC, TUpdateItemFC, TUpdatePictureFC, TUpdateUserProfilFC, TUploadPictureFC } from '../@types/IClientContext';
 import { AlertContext } from './AlertContext';
-import fr from '../traduction/fr.json';
-import en from '../traduction/en.json';
+import fr from '../traduction/fr';
+import en from '../traduction/en';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail, updateEmail } from 'firebase/auth';
+import { collection, addDoc, getDocs, setDoc, deleteDoc, doc, updateDoc, getDoc } from "firebase/firestore"; 
+import { db } from '../database/firebase';
+import { getStorage, ref, deleteObject, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export const ClientContext = createContext<IClientContext>(defaultClientValue);
 
 export const ClientProvider: React.FC = ({ children }) => {
 
+  const auth = getAuth()
+  const storage = getStorage();
   const data = {
     fr,
     en,
@@ -24,7 +30,7 @@ export const ClientProvider: React.FC = ({ children }) => {
 
 
   const getUser: TGetUserFC = async () => {
-    const tmpuser = firebase.auth().currentUser;
+    const tmpuser =  getAuth().currentUser;
 
     return tmpuser
       ? tmpuser
@@ -36,16 +42,14 @@ export const ClientProvider: React.FC = ({ children }) => {
   };
 
   const login: TLoginFC = async (payload: IAuth) => {
-    await firebase
-      .auth()
-      .signInWithEmailAndPassword(payload.email, payload.password)
+    signInWithEmailAndPassword(auth, payload.email, payload.password)
       .then(async () => {
 
         const tmpUser = await getUser();
 
         if (tmpUser) {
-          const users = await firebase.firestore().collection('usersCollection').get();
-          const finalUser = users?.docs.map(doc => doc.data().uid == tmpUser.uid ? doc.data() : null).filter(function (el) {
+          const users = await getDocs(collection(db, "usersCollection"));
+          const finalUser = users?.docs.map((doc) => doc.data().uid == tmpUser.uid ? doc.data() : null).filter(function (el) {
             return el != null;
           });
 
@@ -59,7 +63,7 @@ export const ClientProvider: React.FC = ({ children }) => {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
       })
-      .catch(error => {
+      .catch((error: { message: any; }) => {
         Alerts.warning({
           title: error.message,
           message: '',
@@ -77,20 +81,17 @@ export const ClientProvider: React.FC = ({ children }) => {
   };
 
   const register: TRegisterFC = async (payload: IRegisterClient) => {
-    await firebase
-      .auth()
-      .createUserWithEmailAndPassword(payload.email, payload.password)
+    createUserWithEmailAndPassword(auth, payload.email, payload.password)
       .then(async () => {
         const tmpUser = await getUser();
 
         if (tmpUser) {
-          firebase.firestore().collection('usersCollection').doc(tmpUser.uid)
-            .set({
-              email: tmpUser.email,
-              birthdate: payload.birthdate,
-              displayName: payload.name,
-              uid: tmpUser.uid,
-            });
+          await addDoc(collection(db, "usersCollection"), {
+            email: tmpUser.email,
+            birthdate: payload.birthdate,
+            displayName: payload.name,
+            uid: tmpUser.uid,
+          });
         }
         Alerts.success({
           title: getTraduction('ALERT_REGISTER_TITLE'),
@@ -108,8 +109,7 @@ export const ClientProvider: React.FC = ({ children }) => {
   };
 
   const logout: TLogoutFC = async () => {
-    await firebase
-      .auth()
+    await getAuth()
       .signOut()
       .then(async () => {
         setUser(null);
@@ -127,44 +127,58 @@ export const ClientProvider: React.FC = ({ children }) => {
         });
       });
   };
-  const updateProfil: TUpdateProfilFC = async (payload: IProfil) => {
+  const updateUserProfil: TUpdateUserProfilFC = async (payload: IProfil) => {
     const tmpUser = await getUser();
     let values: IProfil = {};
 
     if (tmpUser) {
-      try {
+        try {
+            await updateEmail(tmpUser, payload.email!);
 
-        await tmpUser.updateEmail(payload.email);
-        (await firebase.firestore().collection('Sites').get()).docs.map(async doc => {
-          if (doc.data().creator == user?.firstname) {
-            await firebase.firestore().collection('Sites').doc(doc.data().previousName).set({
-              ...doc.data(),
-              creator: payload.displayName,
+            const sitesSnapshot = await getDocs(collection(db, 'Sites'));
+            sitesSnapshot.forEach(async doc => {
+                if (doc.data().creator === user?.firstname) {
+                    await setDoc(doc.ref, {
+                        ...doc.data(),
+                        creator: payload.displayName,
+                    });
+                } else {
+                    await setDoc(doc.ref, {
+                        ...doc.data(),
+                        likes: {
+                            likes: doc.data().likes.likes,
+                            names: doc.data().likes.names.filter((elem: string) => elem !== user?.firstname).concat([payload.displayName]),
+                        },
+                    });
+                }
             });
-          }
-          await firebase.firestore().collection('Sites').doc(doc.data().previousName).set({
-            ...doc.data(),
-            likes: { likes: doc.data().likes.likes, names: doc.data().likes.names.filter((elem: string) => elem !== user?.firstname).concat([ payload.displayName]) },
-          });
-        });
-        (await firebase.firestore().collection('usersCollection').get()).docs.map(doc => {
-          if (doc.data().uid == tmpUser.uid) {
-            values = doc.data();
-          }
-        });
-        await firebase.firestore().collection('usersCollection').doc(tmpUser.uid).set({
-          ...values, email: payload.email, displayName: payload.displayName, birthdate: payload.birthdate,
-        });
-        setUser({ ...user, email: payload.email!, 'firstname': payload.displayName, birthdate: payload.birthdate });
-        const userStorage = await AsyncStorage.getItem('user');
-        await AsyncStorage.setItem('user', JSON.stringify({ ...JSON.parse(userStorage!), email: payload.email!, firstname: payload.displayName, birthdate: payload.birthdate }));
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        return null;
-      } catch (error) {
-        return error;
-      }
+
+            const usersSnapshot = await getDocs(collection(db, 'usersCollection'));
+            usersSnapshot.forEach(doc => {
+                if (doc.data().uid === tmpUser.uid) {
+                    values = doc.data();
+                }
+            });
+            await setDoc(doc(db, 'usersCollection', tmpUser.uid), {
+                ...values,
+                email: payload.email,
+                displayName: payload.displayName,
+                birthdate: payload.birthdate,
+            });
+
+            setUser({ ...user, email: payload.email!, 'firstname': payload.displayName, birthdate: payload.birthdate });
+
+            const userStorage = await AsyncStorage.getItem('user');
+            await AsyncStorage.setItem('user', JSON.stringify({ ...JSON.parse(userStorage!), email: payload.email!, firstname: payload.displayName, birthdate: payload.birthdate }));
+
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+            return null;
+        } catch (error) {
+            return error;
+        }
     }
-  };
+};
 
   const takepicture: TTakePictureFC = async () => {
     const result = await ImagePicker.launchCameraAsync({
@@ -189,31 +203,35 @@ export const ClientProvider: React.FC = ({ children }) => {
   };
 
   const updatePicture: TUpdatePictureFC = async (payload: IPhoto) => {
-    var tmpUser = firebase.auth().currentUser;
-    tmpUser?.updateProfile({  photoURL: payload.path.split('/')[1] });
+    try {
+        const tmpUser = await getUser();
 
-    const blob = await (await fetch(payload.url!)).blob();
-    const ref = firebase
-      .storage()
-      .ref()
-      .child(payload.path);
-    await ref.put(blob);
+        await updateProfile(tmpUser, {
+          photoURL: payload.path.split('/')[1]
+        });
+
+        const storageRef = ref(storage, payload.path);
+        const blob = await (await fetch(payload.url!)).blob();
+        uploadBytes(storageRef, blob)
+    } catch (error) {
+        return error;
+    }
   };
 
   const setImage: TSetImageFC = async (payload: IPhoto) => {
-  
-    const ref = firebase.storage().ref().child(payload.path);
-
-    const blob = await (await fetch(payload.url!)).blob();
-    await ref.put(blob);
+    try {
+        const storageRef = ref(storage, payload.path);
+        const blob = await (await fetch(payload.url!)).blob();
+        uploadBytes(storageRef, blob)
+    } catch (error) {
+        return error;
+    }
   };
 
   const getImage: TGetImageFC = async (payload: IPhoto) => {
     try {
-      var url = '';
-  
-      const img = firebase.storage().ref().child(payload.path).child(payload.url!);
-      await img.getDownloadURL().then((uri: string) => { url = uri; });
+      const imgRef = ref(storage, `${payload.path}/${payload.url}`);
+      const url = await getDownloadURL(imgRef);
   
       return url;
     } catch (error) {
@@ -222,22 +240,79 @@ export const ClientProvider: React.FC = ({ children }) => {
   };
 
   const getItems: TGetItemsFC = async () => {
-    const items = await firebase.firestore().collection('Sites').get();
-    return items;
-  };
+    try {
+        const items = await getDocs(collection(db, 'Sites'));
+        return items
+    } catch (error) {
+        console.error("Error fetching items:", error);
+        return [];
+    }
+};
 
-  const setItems: TSetItemsFC = async () => {
-    return firebase.firestore().collection('Sites');
-  };
+const setItems: TSetItemsFC = async (payload) => {
+  return doc(db, 'Sites', payload.name);
+};
 
-  const deleteItem: TDeleteItemFC = async (payload) => {
-    await firebase.firestore().collection('Sites').doc(payload.name).delete();
-    await firebase.storage().ref().child('images/' + payload.path).delete();
-  };
+const updateItem: TUpdateItemFC = async (payload) => {
+    try {
+      const itemRef = doc(db, 'Sites', payload.item);
+      const item = await getDoc(itemRef);
 
-  const deleteImage: TDeleteImageFC = async (path) => {
-    await firebase.storage().ref().child('images/' + path).delete();
-  };
+      if (item.exists()) {
+        let updatedLikes: { likes: number, names: string[] };
+      
+        if (payload.addLike) {
+          if (!item.data()?.likes.names.includes(user?.firstname)) {
+            updatedLikes = {
+              likes: item.data()?.likes.likes + 1,
+              names: [...item.data()?.likes.names, user?.firstname || ''],
+            };
+          } else {
+            updatedLikes = {
+              likes: item.data()?.likes.likes + 1,
+              names: item.data()?.likes.names,
+            };
+          }
+        } else {
+          if (item.data()?.likes.names.includes(user?.firstname)) {
+            updatedLikes = {
+              likes: item.data()?.likes.likes - 1,
+              names: item.data()?.likes.names.filter((elem: string) => elem !== user?.firstname),
+            };
+          } else {
+            updatedLikes = {
+              likes: item.data()?.likes.likes - 1,
+              names: item.data()?.likes.names,
+            };
+          }
+        }
+      
+        updateDoc(itemRef, {
+          likes: updatedLikes,
+        });
+      }
+      
+    } catch (error) {
+        console.error("Error updating item:", error);
+    }
+}
+
+const deleteItem: TDeleteItemFC = async (payload) => {
+    try {
+        await deleteDoc(doc(db, 'Sites', payload.name));
+        await deleteObject(ref(storage, 'images/' + payload.path));
+    } catch (error) {
+        console.error("Error deleting item:", error);
+    }
+};
+
+const deleteImage: TDeleteImageFC = async (path) => {
+    try {
+        await deleteObject(ref(storage, 'images/' + path));
+    } catch (error) {
+        console.error("Error deleting image:", error);
+    }
+};
 
   const setAppLang: TSetAppLangFC = async (language) => {
     setLang(language);
@@ -248,36 +323,27 @@ export const ClientProvider: React.FC = ({ children }) => {
   };
 
   const resetpassword: TResetPasswordFC = async (payload: IReset) => {
-    await firebase
-      .auth()
-      .sendPasswordResetEmail(payload.email)
-      .then(() => {
+    try {
+        await sendPasswordResetEmail(auth, payload.email);
         Alerts.success({
-          title: getTraduction('ALERT_PASSWORD_TITLE'),
-          message: getTraduction('ALERT_PASSWORD_MESSAGE'),
+            title: getTraduction('ALERT_PASSWORD_TITLE'),
+            message: getTraduction('ALERT_PASSWORD_MESSAGE'),
         });
-      })
-      .catch(error => {
+    } catch (error) {
         Alerts.warning({
-          title: error.message,
-          message: '',
+            title: error.message,
+            message: '',
         });
-      });
-  };
-
-  const sleep: TSleepFC = async (ms: number) => {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    });
-  };
+    }
+};
 
   return (
     <ClientContext.Provider value={{
       client: user,
-      sleep, getTraduction, setAppLang, getAppLang,
-      autolog, login, register, logout, resetpassword, updateProfil,
+      getTraduction, setAppLang, getAppLang,
+      autolog, login, register, logout, resetpassword, updateUserProfil,
       uploadpicture, takepicture, updatePicture, getImage, setImage,
-      getUser, getItems, setItems, deleteItem, deleteImage,
+      getUser, getItems, setItems, deleteItem, deleteImage, updateItem,
     }}
     >
       {children}

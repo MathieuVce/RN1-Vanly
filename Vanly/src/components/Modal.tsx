@@ -59,8 +59,8 @@ const styles = StyleSheet.create({
   },
 
   closeBtn: {
-    color: '#eee',
-    fontSize: 16 * 3,
+    color: 'lightgrey',
+    fontSize: 16 * 2.5,
   },
 });
 
@@ -106,7 +106,7 @@ export const ModalE: React.FC<IModalEProps> = ({  isOpen, setIsOpen, children, b
                       <Ionicons
                           style={styles.closeBtn}
                           onPress={handleClose}
-                          name="ios-close-circle"
+                          name="close-circle-outline"
                           />
                   </TouchableOpacity>
               </View>

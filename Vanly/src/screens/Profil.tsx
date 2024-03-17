@@ -233,7 +233,7 @@ const profilStyles = StyleSheet.create({
 
 export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
 
-  const { uploadpicture, takepicture, client, logout, updatePicture, getImage, getUser, getTraduction, setAppLang, getAppLang, updateProfil } = useContext(ClientContext);
+  const { uploadpicture, takepicture, client, logout, updatePicture, getImage, getUser, getTraduction, setAppLang, getAppLang, updateUserProfil } = useContext(ClientContext);
 
   const [uri, setUri] = useState('nonull');
   const [loading, setLoading] = useState(false);
@@ -278,13 +278,12 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
   const handleUpload = (isUploading: boolean) => {
     (async () => {
       const res = await Promise.all([getPermissionAsync(isUploading), isUploading ? uploadpicture() : takepicture()]);
-      
-      if (!res[1].cancelled) {
-        setUri(res[1].uri);
-        updatePicture({ path: 'profil/' + res[1].uri.split('/')[res[1].uri.split('/').length - 1], url: res[1].uri });
+      if (!res[1].canceled) {
+        const tmpUri = res[1]?.assets[0]?.uri;
+        setUri(tmpUri);
+        updatePicture({ path: 'profil/' + tmpUri.split('/')[tmpUri.split('/').length - 1], url: tmpUri });
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       }
-
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     })().catch((error) => {
       console.log(error);
     }); 
@@ -294,7 +293,7 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
     if (Platform.OS == 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ['Camera Roll', 'Camera', 'Cancel'],
+          options: ['Camera Roll', 'Camera', getTraduction('CANCEL')],
           destructiveButtonIndex: 2,
           cancelButtonIndex: 2,
         },
@@ -308,18 +307,17 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
         'Que souhaitez-vous faire ?',
         '',
         [
-          { text: 'Camera Roll', onPress: async () => {
+          { text: 'Camera Roll', onPress: () => {
             handleUpload(true);
           },
           },
-          { text: 'Camera', onPress: async () => {
+          { text: 'Camera', onPress: () => {
             handleUpload(false);
           },
           },
           {
-            text: 'RETOUR',
-            onPress: () => {
-            },
+            text: getTraduction('CANCEL'),
+            onPress: () => {},
             style: 'cancel',
           },
         ],
@@ -389,7 +387,7 @@ export const Profil: React.FC<IProfilProps> = ({ setOpenProfil }) => {
       return;
     }
     setUpdate(true);
-    await updateProfil({ ...values, birthdate });
+    await updateUserProfil({ ...values, birthdate });
     setModify(false);
     setUpdate(false);
   };

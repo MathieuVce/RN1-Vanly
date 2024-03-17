@@ -112,33 +112,26 @@ const itemStyles = StyleSheet.create({
 
 export const ViewItem: React.FC<IViewItemProps> = ({ item, image, setTmpSites, setItem }) => {
 
-  const { getItems, setItems, client, getTraduction } = useContext(ClientContext);
+  const { getItems, client, getTraduction, updateItem } = useContext(ClientContext);
   const [like, setLike] = useState(false);
+  const [loadingLike, setLoadingLike] = useState(false);
   const [loading, setLoading] = useState(true);
   const color = item.type == 'pointOfView' ? '#FEC156' : item.type == 'waterPoint' ? '#768AF8' : item.type == 'gazStation' ? '#B98888' : undefined;
 
   const addLike = async () => {
-    const items = await setItems();
-
-    await items.doc(item.previousName).set({
-      ...item,
-      likes: { likes: item.likes.likes + 1, names: item.likes.names.concat([client?.firstname]) },
-    });
-
+    setLoadingLike(true);
     setItem({ ...item, likes: { likes: item.likes.likes + 1, names: item.likes.names.concat([client?.firstname]) } });
+    await updateItem({ item: item.previousName, addLike: true });
     setTmpSites((await getItems()).docs.map((doc: { data: () => any; }) => doc.data()));
+    setLoadingLike(false);
   };
 
   const removeLike = async () => {
-    const items = await setItems();
-
-    await items.doc(item.previousName).set({
-      ...item,
-      likes: { likes: item.likes.likes - 1, names: item.likes.names.filter((elem: string) => elem !== client?.firstname ) },
-    });
-
+    setLoadingLike(true);
     setItem({ ...item, likes: { likes: item.likes.likes - 1, names: item.likes.names.filter((elem: string) => elem !== client?.firstname) } });
+    await updateItem({ item: item.previousName, addLike: false });
     setTmpSites((await getItems()).docs.map((doc: { data: () => any; }) => doc.data()));
+    setLoadingLike(false);
   };
 
   const openGps = (lat: number, lng: number, name: string) => {
@@ -207,9 +200,9 @@ export const ViewItem: React.FC<IViewItemProps> = ({ item, image, setTmpSites, s
         </View>
         <View style={itemStyles.creator}>
           { like ? 
-            <AntDesign name='like1' size={27} color={color} style={itemStyles.likeic} onPress={() => {setLike(!like); removeLike(); }}/>
+            <AntDesign name='like1' size={27} color={color} style={itemStyles.likeic} onPress={() => {setLike(!like); removeLike(); }} disabled={loadingLike}/>
             :
-            <AntDesign name='like2' size={27} color='lightgrey' style={itemStyles.likeic} onPress={() => {setLike(!like); addLike(); }}/>
+            <AntDesign name='like2' size={27} color='lightgrey' style={itemStyles.likeic} onPress={() => {setLike(!like); addLike(); }} disabled={loadingLike}/>
           }
           <Text style={{ ...itemStyles.like, color: color }}>{item?.likes.likes}</Text>
         </View>

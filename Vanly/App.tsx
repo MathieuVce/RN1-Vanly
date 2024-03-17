@@ -4,10 +4,9 @@ import { ActivityIndicator, Dimensions, ImageBackground } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Asset } from 'expo-asset';
-import AppLoading from 'expo-app-loading';
-
-import { AppModelNav } from './src/roots/AppModelNav';
+import * as SplashScreen from 'expo-splash-screen';
 import { AlertProvier } from './src/contexts/AlertContext';
+import { AppModelNav } from './src/roots/AppModelNav';
 import { AppModelNavConnected } from './src/roots/AppModelNavConnected';
 import { ClientContext, ClientProvider } from './src/contexts/ClientContext';
 
@@ -54,15 +53,17 @@ export default function App() {
     await Promise.all(cacheImages);
   };
 
-  if (!ready) {
-    return (
-      <AppLoading
-        startAsync={cacheResourcesAsync}
-        onFinish={() => {setReady(true);}}
-        onError={console.warn}
-      />
-    );
-  }
+  useEffect(() => {
+    SplashScreen.preventAutoHideAsync().catch(error => {
+      console.warn('Error preventing auto hide:', error);
+    });
+
+    cacheResourcesAsync().then(() => {
+      SplashScreen.hideAsync().catch(error => {
+        console.warn('Error hiding splash screen:', error);
+      });
+    });
+  }, []);
 
   return (
     <SafeAreaProvider>

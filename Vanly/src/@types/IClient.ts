@@ -43,3 +43,12 @@ export interface IDelete {
   name: string,
   path: string
 }
+
+export interface IUpdate {
+  item: string,
+  addLike: boolean
+}
+
+export interface ISetItems {
+  name: string
+}

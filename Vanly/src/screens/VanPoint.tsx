@@ -5,6 +5,7 @@ import * as Haptics from 'expo-haptics';
 
 import { ClientContext } from '../contexts/ClientContext';
 import { AlertContext } from '../contexts/AlertContext';
+import { setDoc } from 'firebase/firestore';
 
 interface IVanPointProps {
   setIndex: React.Dispatch<React.SetStateAction<number>>
@@ -123,9 +124,9 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
     setIndex(2);
 
     try {
-      const items = await setItems();
+      const items = await setItems({name: item.previousName});
 
-      await items.doc(item.previousName).set({
+      await setDoc(items, {
         creator: client?.firstname,
         description: values.description,
         image: values.uri.includes(item.image) ? item.image : values.uri.split('/')[values.uri.split('/').length - 1],
@@ -155,7 +156,6 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
     var time = end - start;
     
     while (time <= 1000) {
-     
       end = new Date().getTime();
       time = end - start;
     }
@@ -171,8 +171,8 @@ export const VanPoint: React.FC<IVanPointProps> = ({ setIndex, setValues, values
     (async () => {
       const res = await Promise.all([await getPermissionAsync(isUploading), isUploading ? uploadpicture() : takepicture()]);
       
-      if (!res[1].cancelled) {
-        setValues({ ...values, uri: res[1].uri });
+      if (!res[1].canceled) {
+        setValues({ ...values, uri: res[1]?.assets[0]?.uri });
       }
 
     })().catch((error) => {
